@@ -7,7 +7,7 @@ This sample demonstrates how to build container images for *** Project ASP.NET C
 You can start by launching a sample from the [Microsoft container registry](https://mcr.microsoft.com/) and access it in a local web browser at `http://localhost:8080`.
 
 ```powershell
-docker run --rm --interactive --tty --publish 8080:80 mcr.microsoft.com/dotnet/samples:aspnetappdocker run --rm -it -p 8080:80 mcr.microsoft.com/dotnet/samples:aspnetapp
+docker run --rm --interactive --tty --publish 8080:80 mcr.microsoft.com/dotnet/samples:aspnetapp
 ```
 
 You can also call the endpoint that the app exposes:
