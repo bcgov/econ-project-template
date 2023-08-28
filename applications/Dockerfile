@@ -4,11 +4,11 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /source
 
 # copy csproj and restore as distinct layers
-COPY WebApp/*.csproj .
+COPY ./WebApp/*.csproj .
 RUN dotnet restore --use-current-runtime  
 
 # copy everything else and build app
-COPY WebApp/. .
+COPY ./WebApp/. .
 RUN dotnet publish --use-current-runtime --self-contained false --no-restore -o /app
 
 # final stage/image
