@@ -19,7 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag image-registry.apps.silver.devops.gov.bc.ca/c57ee7-dev/project-image:v1
+      run: docker build . --file Dockerfile --tag image-registry.apps.silver.devops.gov.bc.ca/c57ee7-dev/project-image:latest
       working-directory: ./applications
     - name: Connect to OpenShift API
       run: |
@@ -28,5 +28,5 @@ jobs:
         oc project c57ee7-dev
         oc get is 
     - name: push to OpenShift Container Registry
-      run:  docker push image-registry.apps.silver.devops.gov.bc.ca/c57ee7-dev/project-image:v1
+      run:  docker push image-registry.apps.silver.devops.gov.bc.ca/c57ee7-dev/project-image:latest
       
