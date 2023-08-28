@@ -20,15 +20,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Docker image
+    - name: Build the Docker application image
       run: docker compose build
       working-directory: ./applications
     - name: Connect to OpenShift API
       run: |
         oc login --token=$AUTH_TOKEN --server=$CLUSTER
-        oc registry login
         oc project $TARGET_PROJECT-$TARGET_ENV
-    - name: push to OpenShift Container Registry
+        oc registry login
+    - name: push to application image to OpenShift Container Registry
       run:  | 
         docker tag project-image image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/project-image:latest
         docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/project-image:latest
