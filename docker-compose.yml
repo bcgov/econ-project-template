@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  project-application:
+    image: project-image
+    build: applications/.
+    env_file:
+      - .env
+    ports:
+      - 8081:80
+    volumes:
+      - project_data:/var/lib/data
+    networks: 
+      - common-network
+
+volumes:
+  project_data:
+    driver: local
+
+networks:
+  common-network:
+    driver: bridge

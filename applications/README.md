@@ -19,7 +19,28 @@ $ curl http://localhost:8080/Environment
 
 ## Build a local Dockerfile based ASP.NET container image
 
-You can build and run an image using the following instructions (if you've cloned this repo):
+You can build and run an image using the following Docker compose instructions (if you've cloned this repo):
+```powershell
+PS C:\opt\Repository\econ-project-template> docker compose build
+[+] Building 0.8s (15/15) FINISHED
+```
+
+Run the image locally
+```powershell
+PS C:\opt\Repository\econ-project-template> docker compose up -d
+[+] Running 2/2
+ ✔ Network econ-project-template_common-network           Created
+ ✔ Container econ-project-template-project-application-1  Started
+```
+Remove the image locally
+```powershell
+PS C:\opt\Repository\econ-project-template> docker compose down
+[+] Running 2/2
+ ✔ Container econ-project-template-project-application-1  Removed
+ ✔ Network econ-project-template_common-network           Removed
+```
+
+You can build and run the image using the following Dockerfile instructions:
 
 ```powershell
 docker build --pull --tag webapp .
@@ -57,155 +78,4 @@ You can tag and push an image using the following instructions (if you've built 
 oc registry login
 docker tag webapp image-registry.apps.silver.devops.gov.bc.ca/[Namespace-dev]/webappimage
 docker push image-registry.apps.silver.devops.gov.bc.ca/[Namespace-dev]/webappimage:latest
-```
-Deployment Config YAML file
-```
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
-metadata:
-  annotations:
-    app.openshift.io/route-disabled: 'false'
-    openshift.io/generated-by: OpenShiftWebConsole
-  name: webapp
-  namespace: [Namespace-dev]
-  labels:
-    app: webapp
-    app.kubernetes.io/component: webapp
-    app.kubernetes.io/instance: webapp
-    app.kubernetes.io/name: webapp
-    app.openshift.io/runtime-namespace: [Namespace-dev]
-    app.openshift.io/runtime-version: latest
-spec:
-  strategy:
-    type: Recreate
-    resources: {}
-    activeDeadlineSeconds: 21600
-    recreateParams:
-      timeoutSeconds: 600
-  triggers:
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - webapp
-        from:
-          kind: ImageStreamTag
-          name: 'webapp:latest'
-          namespace: [Namespace-dev]
-    - type: ConfigChange
-  replicas: 1
-  revisionHistoryLimit: 10
-  test: false
-  selector:
-    app: webapp
-    deploymentconfig: webapp
-  template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        app: webapp
-        deploymentconfig: webapp
-    spec:
-      containers:
-        - name: webapp
-          image: >-
-            image-registry.openshift-image-registry.svc:5000/[Namespace-dev]/webapp@sha256:0316b2530cfda6fa4902bd29d0d680f042370b6b100c71cb45fef4c6848ff4cd
-          ports:
-            - containerPort: 8080
-              protocol: TCP
-          env:
-            - name: ASPNETCORE_URLS
-              value: 'http://*:8080'
-            - name: ASPNETAPP_NAME
-              value: WebApp
-            - name: ASPNETAPP_FULLNAME
-              value: Application System Name
-          resources:
-            limits:
-              cpu: 125m
-              memory: 125Mi
-            requests:
-              cpu: 100m
-              memory: 100Mi
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-          imagePullPolicy: IfNotPresent
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30
-      dnsPolicy: ClusterFirst
-      securityContext: {}
-      schedulerName: default-scheduler
-      imagePullSecrets: []
-  paused: false
-```
-Service YAML file
-```
-kind: Service
-apiVersion: v1
-metadata:
-  name: webapp
-  namespace: [Namespace-dev]
-  labels:
-    app: webapp
-    app.kubernetes.io/component: webapp
-    app.kubernetes.io/instance: webapp
-    app.kubernetes.io/name: webapp
-  annotations:
-    openshift.io/generated-by: OpenShiftWebConsole
-spec:
-  ipFamilies:
-    - IPv4
-  ports:
-    - name: 8080-tcp
-      protocol: TCP
-      port: 8080
-      targetPort: 8080
-  internalTrafficPolicy: Cluster
-  clusterIPs:
-    - 10.98.182.21
-  type: ClusterIP
-  ipFamilyPolicy: SingleStack
-  sessionAffinity: None
-  selector:
-    app: webapp
-    deploymentconfig: webapp
-status:
-  loadBalancer: {}
-```
-Route YAML file
-```
-kind: Route
-apiVersion: route.openshift.io/v1
-metadata:
-  name: webapp
-  namespace: [Namespace-dev]
-  labels:
-    app: webapp
-    app.kubernetes.io/component: webapp
-    app.kubernetes.io/instance: webapp
-    app.kubernetes.io/name: webapp
-  annotations:
-    openshift.io/host.generated: 'true'
-spec:
-  host: webapp-[Namespace-dev].apps.silver.devops.gov.bc.ca
-  to:
-    kind: Service
-    name: webapp
-    weight: 100
-  port:
-    targetPort: 8080-tcp
-  tls:
-    termination: edge
-    insecureEdgeTerminationPolicy: Redirect
-  wildcardPolicy: None
-status:
-  ingress:
-    - host: webapp-[Namespace-dev].apps.silver.devops.gov.bc.ca
-      routerName: default
-      conditions:
-        - type: Admitted
-          status: 'True'
-      wildcardPolicy: None
-      routerCanonicalHostname: router-default.apps.silver.devops.gov.bc.ca
-
 ```
