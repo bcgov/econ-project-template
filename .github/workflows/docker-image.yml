@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  CLUSTER: https://api.silver.devops.gov.bc.ca:6443
+  AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  
 jobs:
 
   build:
@@ -17,3 +21,6 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
       working-directory: ./applications
+    - name: Build & Deploy
+      run: |
+        oc login --token=$AUTH_TOKEN --server=$CLUSTER
