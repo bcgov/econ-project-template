@@ -19,13 +19,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file Dockerfile --tag image-registry.apps.silver.devops.gov.bc.ca/c57ee7-dev/project-image:v1
       working-directory: ./applications
     - name: Connect to OpenShift API
       run: |
         oc login --token=$AUTH_TOKEN --server=$CLUSTER
+        oc registry login
         oc project c57ee7-dev
         oc get is 
     - name: push to OpenShift Container Registry
-      run:  docker push my-image-name:$(date +%s)
+      run:  docker push image-registry.apps.silver.devops.gov.bc.ca/c57ee7-dev/project-image:v1
       
