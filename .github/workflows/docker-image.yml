@@ -21,8 +21,11 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
       working-directory: ./applications
-    - name: Connect to OpenShift & Deploy
+    - name: Connect to OpenShift API
       run: |
         oc login --token=$AUTH_TOKEN --server=$CLUSTER
         oc project c57ee7-dev
         oc get is 
+    - name: push to OpenShift Container Registry
+      run:  docker push my-image-name:$(date +%s)
+      
