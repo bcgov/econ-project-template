@@ -1,0 +1,35 @@
+name: Build and Push Docker container image
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CLUSTER: https://api.silver.devops.gov.bc.ca:6443
+  AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  TARGET_PROJECT: c57ee7
+  TARGET_ENV: test
+  
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker application image
+      run: docker compose build
+      working-directory: ./applications
+    - name: Connect to OpenShift API
+      run: |
+        oc login --token=$AUTH_TOKEN --server=$CLUSTER
+        oc project $TARGET_PROJECT-$TARGET_ENV
+        oc registry login
+    - name: push to application image to OpenShift Container Registry
+      run:  | 
+        docker tag project-image image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/project-image:latest
+        docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/project-image:latest
+      

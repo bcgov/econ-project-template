@@ -2,9 +2,9 @@ name: Build and Push Docker container image
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "dev" ]
 
 env:
   CLUSTER: https://api.silver.devops.gov.bc.ca:6443
