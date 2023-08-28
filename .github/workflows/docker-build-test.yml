@@ -33,6 +33,6 @@ jobs:
         docker tag unity-grantmanager-web image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-web:github-latest
         docker tag unity-grantmanager-dbmigrator image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-dbmigrator:github-latest
         docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-web:github-latest
-        docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-dbmigrator-web:github-latest
+        docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-dbmigrator:github-latest
       
       
