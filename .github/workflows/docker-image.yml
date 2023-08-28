@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Build and Push Docker container image
 
 on:
   push:
@@ -9,6 +9,8 @@ on:
 env:
   CLUSTER: https://api.silver.devops.gov.bc.ca:6443
   AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  TARGET_PROJECT: c57ee7
+  TARGET_ENV: dev
   
 jobs:
 
@@ -25,9 +27,9 @@ jobs:
       run: |
         oc login --token=$AUTH_TOKEN --server=$CLUSTER
         oc registry login
-        oc project c57ee7-dev
+        oc project $TARGET_PROJECT-$TARGET_ENV
     - name: push to OpenShift Container Registry
       run:  | 
-        docker tag project-image image-registry.apps.silver.devops.gov.bc.ca/c57ee7-dev/project-image:latest
-        docker push image-registry.apps.silver.devops.gov.bc.ca/c57ee7-dev/project-image:latest
+        docker tag project-image image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/project-image:latest
+        docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/project-image:latest
       
