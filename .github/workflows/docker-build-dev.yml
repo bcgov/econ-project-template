@@ -1,4 +1,4 @@
-name: Dev - Build Tag Push Container Images
+name: Dev - Build Tag & Push docker images
 
 on:
   push:
