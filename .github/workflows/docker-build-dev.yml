@@ -1,4 +1,4 @@
-name: Dev Build Docker container images
+name: Build Development Container Images
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Docker application image
+    - name: Build the Docker image
       run: docker compose build
       working-directory: ./applications/Unity.GrantManager
     - name: Connect to OpenShift API
@@ -28,7 +28,7 @@ jobs:
         oc login --token=$AUTH_TOKEN --server=$CLUSTER
         oc project $TARGET_PROJECT-$TARGET_ENV
         oc registry login
-    - name: push to application image to OpenShift Container Registry
+    - name: Push application images to OpenShift Container Registry
       run:  | 
         docker tag unity-grantmanager-web image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-web:github-latest
         docker tag unity-grantmanager-dbmigrator image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-dbmigrator:github-latest
