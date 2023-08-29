@@ -1,14 +1,12 @@
-name: Test - Build Tag & Push docker images
+name: Test - Build Push docker images
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 env:
   CLUSTER: https://api.silver.devops.gov.bc.ca:6443
-  AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_TEST }}
   TARGET_PROJECT: c57ee7
   TARGET_ENV: test
   
@@ -20,7 +18,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Docker images
+    - name: Build application Docker images
       run: docker compose build
       working-directory: ./applications/Unity.GrantManager
     - name: Connect to OpenShift API
@@ -28,7 +26,7 @@ jobs:
         oc login --token=$AUTH_TOKEN --server=$CLUSTER
         oc project $TARGET_PROJECT-$TARGET_ENV
         oc registry login
-    - name: Push application images to OpenShift Container Registry
+    - name: Push application images to OpenShift container registry
       run:  | 
         docker tag unity-grantmanager-web image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-web:github-latest
         docker tag unity-grantmanager-dbmigrator image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-dbmigrator:github-latest
