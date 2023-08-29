@@ -1,4 +1,4 @@
-name: Build Test Container Images
+name: Test - Build Tag Push Container Images
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Docker image
+    - name: Build the Docker images
       run: docker compose build
       working-directory: ./applications/Unity.GrantManager
     - name: Connect to OpenShift API
