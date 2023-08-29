@@ -39,7 +39,7 @@ services:
       - common-network
 
   unity-data-postgres:
-    image: postgres:15.4
+    image: postgres:latest
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
