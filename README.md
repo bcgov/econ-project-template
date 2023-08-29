@@ -7,6 +7,7 @@ The project is in the very early stages of development.
 
 ## Directory Structure
 
+    .github/workflows          - GitHub Actions
     applications/              - Application Root
     ├── WebApp/                - Sample project solution
     database/                  - Database configuration files
