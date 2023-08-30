@@ -3,6 +3,18 @@ name: Test - Build & Push docker images
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - '.github/**'
+      - '.gitignore'
+      - 'cypress/**'
+      - 'database/**'
+      - 'documentation/**'
+      - 'openshift/**'
+      - 'COMPLIANCE.yaml'
+      - 'CONTRIBUTING.md'
+      - 'LICENSE'
+      - 'README.md'
+      - 'SECURITY..md'
 
 env:
   CLUSTER: https://api.silver.devops.gov.bc.ca:6443
