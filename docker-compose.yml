@@ -2,10 +2,8 @@ version: '3.8'
 
 services:
   project-application:
-    image: project-image
+    image: webapp
     build: applications/.
-    env_file:
-      - .env
     ports:
       - 8081:80
     volumes:

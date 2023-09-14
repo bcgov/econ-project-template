@@ -43,19 +43,3 @@ objects:
       ingress:
       - from:
         - podSelector: {}
-  - kind: NetworkPolicy
-    apiVersion: networking.k8s.io/v1
-    metadata:
-      name: intra-namespace-comms
-    spec:
-      # Allow all pods within the project namespace to communicate
-      # to tools namespace
-      podSelector: {}
-      ingress:
-      - from:
-        - namespaceSelector:
-            matchLabels:
-              environment: dev
-              name: d18498
-      policyTypes:
-        - Ingress

@@ -7,13 +7,15 @@ The project is in the very early stages of development.
 
 ## Directory Structure
 
-    .github/workflows          - GitHub Actions
+    .github                    - GitHub Actions
     applications/              - Application Root
-    ├── WebApp/                - Sample project solution
     database/                  - Database configuration files
     documentation/             - Solution documentation and assets
     openshift/                 - OpenShift-deployment files
+    tests/                     - Supporting functional tests
+    CODE_OF_CONDUCT.md         - Contributor Covenant
     COMPLIANCE.yaml            - BCGov PIA/STRA compliance status
+    CONTRIBUTING.md            - How to contribute
     LICENSE                    - License
     SECURITY.md                - Security Policy and Reporting
 
