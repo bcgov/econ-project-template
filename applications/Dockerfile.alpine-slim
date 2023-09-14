@@ -12,8 +12,6 @@ RUN dotnet restore --use-current-runtime /p:PublishReadyToRun=true
 COPY WebApp/. .
 RUN dotnet publish --use-current-runtime --no-restore -o /app /p:PublishTrimmed=true /p:PublishReadyToRun=true
 
-# Enable globalization and time zones:
-# https://github.com/dotnet/dotnet-docker/blob/main/samples/enable-globalization.md
 # final stage/image
 FROM mcr.microsoft.com/dotnet/runtime-deps:7.0-alpine
 WORKDIR /app
