@@ -21,14 +21,14 @@ env:
   CLUSTER: https://api.silver.devops.gov.bc.ca:6443
   AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
   TARGET_PROJECT: ${{ vars.PROJECT_NAMESPACE }}
-  TARGET_ENV: ${{ vars.ENV_NAME }}
-  
+  TARGET_ENV: ${{ vars.NAME }} 
+
 jobs:
 
   build:
 
     runs-on: ubuntu-latest
-
+    environment: dev
     steps:
     - uses: actions/checkout@v3
     - name: Build application Docker images
