@@ -21,7 +21,7 @@ env:
   CLUSTER: https://api.silver.devops.gov.bc.ca:6443
   AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
   TARGET_PROJECT: ${{ vars.PROJECT_NAMESPACE }}
-  TARGET_ENV: ${{ env.NAME }} 
+  TARGET_ENV: ${{ vars.NAME }} 
 
 jobs:
 
