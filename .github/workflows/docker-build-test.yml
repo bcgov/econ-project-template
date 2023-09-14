@@ -19,7 +19,7 @@ on:
 env:
   CLUSTER: https://api.silver.devops.gov.bc.ca:6443
   AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_TEST }}
-  TARGET_PROJECT: c57ee7
+  TARGET_PROJECT: ${{ vars.PROJECT_NAMESPACE }}
   TARGET_ENV: test
   
 jobs:
@@ -32,7 +32,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build application Docker images
       run: docker compose build
-      working-directory: ./applications/Unity.GrantManager
+      working-directory: ./applications
     - name: Connect to OpenShift API
       run: |
         oc login --token=$AUTH_TOKEN --server=$CLUSTER
@@ -40,9 +40,7 @@ jobs:
         oc registry login
     - name: Push application images to OpenShift container registry
       run:  | 
-        docker tag unity-grantmanager-web image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-web:github-latest
-        docker tag unity-grantmanager-dbmigrator image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-dbmigrator:github-latest
-        docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-web:github-latest
-        docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/unity-grantmanager-dbmigrator:github-latest
+        docker tag webapp image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/webapp:github-latest
+        docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/webapp:github-latest
       
       
