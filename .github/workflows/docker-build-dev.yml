@@ -6,10 +6,11 @@ on:
     paths-ignore:
       - '.github/**'
       - '.gitignore'
-      - 'cypress/**'
       - 'database/**'
       - 'documentation/**'
       - 'openshift/**'
+      - 'tests/**'
+      - 'CODE_OF_CONDUCT.md'
       - 'COMPLIANCE.yaml'
       - 'CONTRIBUTING.md'
       - 'LICENSE'
@@ -19,8 +20,8 @@ on:
 env:
   CLUSTER: https://api.silver.devops.gov.bc.ca:6443
   AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
-  TARGET_PROJECT: c57ee7
-  TARGET_ENV: dev
+  TARGET_PROJECT: ${{ vars.PROJECT_NAMESPACE }}
+  TARGET_ENV: ${{ vars.ENV_NAME }}
   
 jobs:
 
