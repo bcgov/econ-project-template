@@ -3,7 +3,7 @@
 services:
   web-application:
     env_file:
-      - webapp.env
+      - applications/aspnetapp/webapp.env
   console-application:
     env_file:
-      - console.env
+      - applications/dotnetapp/console.env
