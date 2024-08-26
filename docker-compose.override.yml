@@ -1,7 +1,9 @@
-version: '3.8'
 
 # Add docker runtime environment variables from the .env file these are not included in the docker builds. 
 services:
-  project-application:
+  web-application:
     env_file:
-      - .env
+      - webapp.env
+  console-application:
+    env_file:
+      - console.env

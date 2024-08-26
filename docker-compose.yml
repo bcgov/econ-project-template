@@ -1,20 +1,23 @@
-version: '3.8'
-
 services:
-  project-application:
-    image: webapp
-    build: applications/.
-    ports:
-      - 8081:80
+  console-application:
+    image: dotnetapp
+    build: applications/dotnetapp/.
     volumes:
       - project_data:/var/lib/data
     networks: 
       - common-network
-
+  web-application:
+    image: aspnetapp
+    build: applications/aspnetapp/.
+    ports:
+      - 8080:8000
+    volumes:
+      - project_data:/var/lib/data
+    networks: 
+      - common-network
 volumes:
   project_data:
     driver: local
-
 networks:
   common-network:
     driver: bridge
