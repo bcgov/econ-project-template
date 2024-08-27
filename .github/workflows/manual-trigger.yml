@@ -17,6 +17,14 @@ on:
         required: true
         # The data type of the input
         type: string
+env:
+
+  CLUSTER: https://api.silver.devops.gov.bc.ca:6443
+  AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
+  TARGET_PROJECT: ${{ vars.PROJECT_NAMESPACE }}
+  TARGET_ENV: ${{ vars.NAME }} 
+  ART_REPO_USER: ${{ secrets.ARTIFACTORY_USER_DEV }}
+  ART_REPO_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN_DEV }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -31,16 +39,7 @@ jobs:
     - name: Send greeting
       run: echo "Hello ${{ inputs.name }}"
 
-      env:
-  CLUSTER: https://api.silver.devops.gov.bc.ca:6443
-  AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
-  TARGET_PROJECT: ${{ vars.PROJECT_NAMESPACE }}
-  TARGET_ENV: ${{ vars.NAME }} 
-  ART_REPO_USER: ${{ secrets.ARTIFACTORY_USER_DEV }}
-  ART_REPO_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN_DEV }}
-
   build:
-
     runs-on: ubuntu-latest
     environment: dev
     steps:
