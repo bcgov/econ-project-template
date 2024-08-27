@@ -29,7 +29,7 @@ env:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
-  greet:
+  setup:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -52,7 +52,7 @@ jobs:
       working-directory: ./applications/aspnetapp
     - name: Connect to JFrog Artifactory
       run: |
-        docker login --username $FROG_USERNAME --password $JFROG_PASSWORD artifacts.developer.gov.bc.ca
+        docker login --username $JFROG_USERNAME --password $JFROG_PASSWORD artifacts.developer.gov.bc.ca
     - name: Push application images to Artifactory container registry
       run:  | 
         docker tag dotnetapp artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/dotnetapp
