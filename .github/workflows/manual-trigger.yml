@@ -50,6 +50,10 @@ jobs:
     - name: Build aspnetapp docker images
       run: docker compose build
       working-directory: ./applications/aspnetapp
+    - name: Connect to JFrog Artifactory non-interactive config
+      run: |
+        echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin
+        docker logout
     - name: Connect to JFrog Artifactory
       run: |
         docker login --username $JFROG_USERNAME --password $JFROG_PASSWORD artifacts.developer.gov.bc.ca
