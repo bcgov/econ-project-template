@@ -10,21 +10,21 @@ on:
     inputs:
       name:
         # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
+        description: 'Environment'
         # Default value if no value is explicitly provided
-        default: 'World'
+        default: 'dev'
         # Input has to be provided for the workflow to run
         required: true
         # The data type of the input
         type: string
 env:
-
-  CLUSTER: https://api.silver.devops.gov.bc.ca:6443
-  AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
-  TARGET_PROJECT: ${{ vars.PROJECT_NAMESPACE }}
   TARGET_ENV: ${{ vars.NAME }} 
-  ART_REPO_USER: ${{ secrets.ARTIFACTORY_USER_DEV }}
-  ART_REPO_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN_DEV }}
+  OC_CLUSTER: https://api.silver.devops.gov.bc.ca:6443
+  OC_AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
+  OC_TARGET_PROJECT: ${{ vars.PROJECT_NAMESPACE }}
+  JFROG_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+  JFROG_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+  JFROG_REPO_PATH: ${{ vars.ARTIFACTORY_REPO_DEV }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -36,24 +36,29 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ inputs.name }}"
+    - name: Send message
+      run: echo "Environment = ${{ inputs.name }}, $TARGET_ENV"
 
   build:
     runs-on: ubuntu-latest
-    environment: dev
+    environment: ${{ inputs.name }}
     steps:
     - uses: actions/checkout@v4
-    - name: Build application Docker images
+    - name: Build dotnetapp docker images
       run: docker compose build
       working-directory: ./applications/dotnetapp
+    - name: Build aspnetapp docker images
+      run: docker compose build
+      working-directory: ./applications/aspnetapp
     - name: Connect to JFrog Artifactory
       run: |
-        docker login --username $ART_REPO_USER --password $ART_REPO_TOKEN artifacts.developer.gov.bc.ca
+        docker login --username $FROG_USERNAME --password $JFROG_PASSWORD artifacts.developer.gov.bc.ca
     - name: Push application images to Artifactory container registry
       run:  | 
-        docker tag dotnetapp artifacts.developer.gov.bc.ca/tc57-tidd-docker-images/dotnetapp
-        docker push artifacts.developer.gov.bc.ca/tc57-tidd-docker-images/dotnetapp
+        docker tag dotnetapp artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/dotnetapp
+        docker push artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/dotnetapp
+        docker tag aspnetapp artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/aspnetapp
+        docker push artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/aspnetapp
     - name: Connect to OpenShift API
       run: |
         # oc login --token=$AUTH_TOKEN --server=$CLUSTER
