@@ -38,7 +38,7 @@ jobs:
     - name: Set variables
       run: |
         echo "target=${{ inputs.name }} "
-        echo "base=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+        echo "base=$GITHUB_REF_NAME"
   build:
     runs-on: ubuntu-latest
     environment: ${{ inputs.name }}
