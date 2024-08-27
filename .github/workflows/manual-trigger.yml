@@ -18,10 +18,10 @@ on:
         # The data type of the input
         type: string
 env:
-  TARGET_ENV: ${{ vars.NAME }} 
+  TARGET_ENV: ${{ inputs.name }} 
   OC_CLUSTER: https://api.silver.devops.gov.bc.ca:6443
   OC_AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
-  OC_TARGET_PROJECT: ${{ vars.PROJECT_NAMESPACE }}
+  OC_TARGET_PROJECT: ${{ vars.OPENSHIFT_NAMESPACE_DEV}}
   JFROG_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
   JFROG_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
   JFROG_REPO_PATH: ${{ vars.ARTIFACTORY_REPO_DEV }}
@@ -65,12 +65,13 @@ jobs:
         docker push artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/aspnetapp
     - name: Connect to OpenShift API
       run: |
-        oc login --token=$AUTH_TOKEN --server=$CLUSTER
-        oc project $TARGET_PROJECT-$TARGET_ENV
+        oc login --token=$OC_AUTH_TOKEN --server=$OC_CLUSTER
         oc registry login
     - name: Push application images to OpenShift container registry
       run:  | 
-        docker tag dotnetapp image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/dotnetapp
-        docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/dotnetapp
+        docker tag dotnetapp image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/dotnetapp
+        docker push image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/dotnetapp
+        docker tag aspnetapp image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/aspnetapp
+        docker push image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/aspnetapp
       
       
