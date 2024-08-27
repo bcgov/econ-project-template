@@ -36,7 +36,7 @@ jobs:
     steps:
     # Runs a single command using the runners shell
     - name: Send message
-      run: echo "Environment = ${{ inputs.name }}, ${{ vars.NAME }} "
+      run: echo "Environment = ${{ inputs.name }}, $env:GITHUB_REF_NAME, ${{ env.NAME }} "
   build:
     runs-on: ubuntu-latest
     environment: ${{ inputs.name }}
@@ -57,7 +57,7 @@ jobs:
         docker push artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/dotnetapp
         docker tag aspnetapp artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/aspnetapp
         docker push artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/aspnetapp
-    - name: Disconnect from JFrog Artifactory
+    - name: Disconnect docker from JFrog Artifactory
       run: |
         docker logout
     - name: Connect to OpenShift API non-interactive login using current session token
@@ -71,3 +71,6 @@ jobs:
         docker push image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/dotnetapp
         docker tag aspnetapp image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/aspnetapp
         docker push image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/aspnetapp
+    - name: Disconnect docker from OpenShift container registry
+      run: |
+        docker logout
