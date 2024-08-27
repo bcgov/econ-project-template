@@ -2,14 +2,15 @@ name: Test - Build & Push docker images
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "test" ]
     paths-ignore:
       - '.github/**'
       - '.gitignore'
-      - 'cypress/**'
       - 'database/**'
       - 'documentation/**'
       - 'openshift/**'
+      - 'tests/**'
+      - 'CODE_OF_CONDUCT.md'
       - 'COMPLIANCE.yaml'
       - 'CONTRIBUTING.md'
       - 'LICENSE'
@@ -29,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build application Docker images
       run: docker compose build
       working-directory: ./applications
