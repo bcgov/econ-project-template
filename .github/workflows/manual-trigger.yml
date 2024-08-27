@@ -35,8 +35,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Runs a single command using the runners shell
-    - name: Send message
-      run: echo "Environment = ${{ inputs.name }}, $env:GITHUB_REF_NAME, ${{ env.NAME }} "
+    - name: Set variables
+      run: |
+        echo "target=${{ inputs.name }} "
+        echo "base=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
   build:
     runs-on: ubuntu-latest
     environment: ${{ inputs.name }}
