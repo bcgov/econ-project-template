@@ -39,6 +39,7 @@ jobs:
       run: |
         echo "target=${{ inputs.name }} "
         echo "base=$GITHUB_REF_NAME"
+        echo "name=$NAME"
   build:
     runs-on: ubuntu-latest
     environment: ${{ inputs.name }}
