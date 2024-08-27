@@ -39,7 +39,7 @@ jobs:
       run: |
         echo "target=${{ inputs.name }} "
         echo "base=$GITHUB_REF_NAME"
-        env
+        env | sort
   build:
     runs-on: ubuntu-latest
     environment: ${{ inputs.name }}
