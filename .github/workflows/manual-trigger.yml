@@ -37,7 +37,7 @@ jobs:
     steps:
     # Runs a single command using the runners shell
     - name: Send message
-      run: echo "Environment = ${{ inputs.name }}, $TARGET_ENV"
+      run: echo "Environment = ${{ inputs.name }}, ${{ vars.NAME }} "
 
   build:
     runs-on: ubuntu-latest
@@ -50,13 +50,13 @@ jobs:
     - name: Build aspnetapp docker images
       run: docker compose build
       working-directory: ./applications/aspnetapp
-    - name: Connect to JFrog Artifactory non-interactive config
+    - name: Connect to JFrog Artifactory non-interactive using --password-stdin
       run: |
         echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin artifacts.developer.gov.bc.ca
         docker logout
     - name: Connect to JFrog Artifactory
       run: |
-        docker login --username $JFROG_USERNAME --password $JFROG_PASSWORD artifacts.developer.gov.bc.ca
+        echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin artifacts.developer.gov.bc.ca
     - name: Push application images to Artifactory container registry
       run:  | 
         docker tag dotnetapp artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/dotnetapp
@@ -65,12 +65,12 @@ jobs:
         docker push artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/aspnetapp
     - name: Connect to OpenShift API
       run: |
-        # oc login --token=$AUTH_TOKEN --server=$CLUSTER
-        # oc project $TARGET_PROJECT-$TARGET_ENV
-        # oc registry login
+        oc login --token=$AUTH_TOKEN --server=$CLUSTER
+        oc project $TARGET_PROJECT-$TARGET_ENV
+        oc registry login
     - name: Push application images to OpenShift container registry
       run:  | 
-        # docker tag dotnetapp image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/dotnetapp:github-latest
-        # docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/dotnetapp:github-latest
+        docker tag dotnetapp image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/dotnetapp
+        docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/dotnetapp
       
       
