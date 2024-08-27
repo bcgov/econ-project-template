@@ -32,7 +32,6 @@ jobs:
   setup:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Runs a single command using the runners shell
@@ -50,11 +49,11 @@ jobs:
     - name: Build aspnetapp docker images
       run: docker compose build
       working-directory: ./applications/aspnetapp
-    - name: Connect to JFrog Artifactory non-interactive using --password-stdin
-      run: |
-        echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin artifacts.developer.gov.bc.ca
-        docker logout
-    - name: Connect to JFrog Artifactory
+  push:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.name }}
+    steps:
+    - name: Connect to JFrog Artifactory non-interactive login using --password-stdin
       run: |
         echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin artifacts.developer.gov.bc.ca
     - name: Push application images to Artifactory container registry
@@ -63,7 +62,10 @@ jobs:
         docker push artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/dotnetapp
         docker tag aspnetapp artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/aspnetapp
         docker push artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/aspnetapp
-    - name: Connect to OpenShift API
+    - name: Disconnect from JFrog Artifactory
+      run: |
+        docker logout
+    - name: Connect to OpenShift API non-interactive login using current session token
       run: |
         oc login --token=$OC_AUTH_TOKEN --server=$OC_CLUSTER
         oc registry login
@@ -74,5 +76,3 @@ jobs:
         docker push image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/dotnetapp
         docker tag aspnetapp image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/aspnetapp
         docker push image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/aspnetapp
-      
-      
