@@ -22,6 +22,8 @@ env:
   AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
   TARGET_PROJECT: ${{ vars.PROJECT_NAMESPACE }}
   TARGET_ENV: ${{ vars.NAME }} 
+  ART_REPO_USER: ${{ secrets.ARTIFACTORY_USER_DEV }}
+  ART_REPO_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN_DEV }}
 
 jobs:
 
@@ -34,6 +36,13 @@ jobs:
     - name: Build application Docker images
       run: docker compose build
       working-directory: ./applications
+    - name: Connect to JFrog Artifactory
+      run: |
+        docker login --username $ART_REPO_USER --password $ART_REPO_TOKEN artifacts.developer.gov.bc.ca
+    - name: Push application images to Artifactory container registry
+      run:  | 
+        docker tag dotnetapp image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/dotnetapp:github-latest
+        # docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/dotnetapp:github-latest
     - name: Connect to OpenShift API
       run: |
         oc login --token=$AUTH_TOKEN --server=$CLUSTER
