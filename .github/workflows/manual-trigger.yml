@@ -42,8 +42,8 @@ jobs:
       run: |
         echo "target=${{ inputs.name }} "
         echo "base=$GITHUB_REF_NAME"
-        echo "Environment: ${{ inputs.name }} OC_TARGET_PROJECT=$OC_CLUSTER/$OC_TARGET_PROJECT"
-        echo "Environment: ${{ inputs.name }} JFROG_REPO_PATH=$JFROG_SERVICE/$JFROG_REPO_PATH"
+        echo "Environment: ${{ inputs.name }} OC_TARGET_PROJECT=$OC_TARGET_PROJECT"
+        echo "Environment: ${{ inputs.name }} JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
         env | sort
   build:
@@ -73,13 +73,13 @@ jobs:
       run: |
         oc login --token=$OC_AUTH_TOKEN --server=$OC_CLUSTER
         oc registry login
-        docker login -u unused -p $(oc whoami -t) image-registry.apps.silver.devops.gov.bc.ca
+        docker login -u unused -p $(oc whoami -t) $OC_REGISTRY
     - name: Push application images to OpenShift container registry
       run:  | 
-        docker tag dotnetapp image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/dotnetapp
-        docker push image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/dotnetapp
-        docker tag aspnetapp image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/aspnetapp
-        docker push image-registry.apps.silver.devops.gov.bc.ca/$OC_TARGET_PROJECT/aspnetapp
+        docker tag dotnetapp $OC_REGISTRY/$OC_TARGET_PROJECT/dotnetapp
+        docker push $OC_REGISTRY/$OC_TARGET_PROJECT/dotnetapp
+        docker tag aspnetapp $OC_REGISTRY/$OC_TARGET_PROJECT/aspnetapp
+        docker push $OC_REGISTRY/$OC_TARGET_PROJECT/aspnetapp
     - name: Disconnect docker from OpenShift container registry
       run: |
         docker logout
