@@ -40,7 +40,8 @@ jobs:
       run: |
         echo "target=${{ inputs.name }} "
         echo "base=$GITHUB_REF_NAME"
-        echo ${{ vars.MY_VARIABLE }}
+        echo "Environment: ${{ inputs.name }} MY_VARIABLE=${{ vars.MY_VARIABLE }}"
+        echo "Environment: ${{ inputs.name }} MY_SECRET=${{ secrets.MY_SECRET }}"
         env | sort
   build:
     runs-on: ubuntu-latest
