@@ -19,12 +19,13 @@ on:
         type: string
 env:
   TARGET_ENV: ${{ inputs.name }} 
-  OC_CLUSTER: https://api.silver.devops.gov.bc.ca:6443
-  OC_AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
-  OC_TARGET_PROJECT: ${{ vars.OPENSHIFT_NAMESPACE_DEV}}
+  OC_CLUSTER: ${{ vars.OPENSHIFT_CLUSTER }}
+  OC_AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  OC_TARGET_PROJECT: ${{ vars.OPENSHIFT_NAMESPACE }}
   JFROG_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
   JFROG_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-  JFROG_REPO_PATH: ${{ vars.ARTIFACTORY_REPO_DEV }}
+  JFROG_REPO_PATH: ${{ vars.ARTIFACTORY_REPO }}
+  JFROG_SERVICE:  ${{ vars.ARTIFACTORY_SERVER }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -40,8 +41,8 @@ jobs:
       run: |
         echo "target=${{ inputs.name }} "
         echo "base=$GITHUB_REF_NAME"
-        echo "Environment: ${{ inputs.name }} MY_VARIABLE=${{ vars.MY_VARIABLE }}"
-        echo "Environment: ${{ inputs.name }} MY_SECRET=${{ secrets.MY_SECRET }}"
+        echo "Environment: ${{ inputs.name }} OC_TARGET_PROJECT=$OC_TARGET_PROJECT"
+        echo "Environment: ${{ inputs.name }} JFROG_REPO_PATH=$JFROG_REPO_PATH"
         env | sort
   build:
     runs-on: ubuntu-latest
@@ -56,13 +57,13 @@ jobs:
       working-directory: ./applications/aspnetapp
     - name: Connect to JFrog Artifactory non-interactive login using --password-stdin
       run: |
-        echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin artifacts.developer.gov.bc.ca
+        echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin $JFROG_SERVICE
     - name: Push application images to Artifactory container registry
       run:  | 
-        docker tag dotnetapp artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/dotnetapp
-        docker push artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/dotnetapp
-        docker tag aspnetapp artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/aspnetapp
-        docker push artifacts.developer.gov.bc.ca/$JFROG_REPO_PATH/aspnetapp
+        docker tag dotnetapp $JFROG_SERVICE/$JFROG_REPO_PATH/dotnetapp
+        docker push $JFROG_SERVICE/$JFROG_REPO_PATH/dotnetapp
+        docker tag aspnetapp $JFROG_SERVICE/$JFROG_REPO_PATH/aspnetapp
+        docker push $JFROG_SERVICE/$JFROG_REPO_PATH/aspnetapp
     - name: Disconnect docker from JFrog Artifactory
       run: |
         docker logout
