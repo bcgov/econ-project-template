@@ -20,12 +20,13 @@ on:
 env:
   TARGET_ENV: ${{ inputs.name }} 
   OC_CLUSTER: ${{ vars.OPENSHIFT_CLUSTER }}
+  OC_REGISTRY: ${{ vars.OPENSHIFT_REGISTRY }}
   OC_AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
   OC_TARGET_PROJECT: ${{ vars.OPENSHIFT_NAMESPACE }}
   JFROG_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
   JFROG_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
   JFROG_REPO_PATH: ${{ vars.ARTIFACTORY_REPO }}
-  JFROG_SERVICE:  ${{ vars.ARTIFACTORY_SERVER }}
+  JFROG_SERVICE:  ${{ vars.ARTIFACTORY_SERVICE }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -37,12 +38,13 @@ jobs:
     environment: ${{ inputs.name }}
     steps:
     # Runs a single command using the runners shell
-    - name: Set variables
+    - name: Get variables
       run: |
         echo "target=${{ inputs.name }} "
         echo "base=$GITHUB_REF_NAME"
-        echo "Environment: ${{ inputs.name }} OC_TARGET_PROJECT=$OC_TARGET_PROJECT"
-        echo "Environment: ${{ inputs.name }} JFROG_REPO_PATH=$JFROG_REPO_PATH"
+        echo "Environment: ${{ inputs.name }} OC_TARGET_PROJECT=$OC_CLUSTER/$OC_TARGET_PROJECT"
+        echo "Environment: ${{ inputs.name }} JFROG_REPO_PATH=$JFROG_SERVICE/$JFROG_REPO_PATH"
+        echo "..."
         env | sort
   build:
     runs-on: ubuntu-latest
