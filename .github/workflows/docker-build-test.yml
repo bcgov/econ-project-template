@@ -15,33 +15,70 @@ on:
       - 'CONTRIBUTING.md'
       - 'LICENSE'
       - 'README.md'
-      - 'SECURITY..md'
+      - 'SECURITY.md'
 
 env:
-  CLUSTER: https://api.silver.devops.gov.bc.ca:6443
-  AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_TEST }}
-  TARGET_PROJECT: ${{ vars.PROJECT_NAMESPACE }}
-  TARGET_ENV: test
-  
+  TARGET_ENV: test 
+  OC_CLUSTER: ${{ vars.OPENSHIFT_CLUSTER }}
+  OC_REGISTRY: ${{ vars.OPENSHIFT_REGISTRY }}
+  OC_AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  OC_TARGET_PROJECT: ${{ vars.OPENSHIFT_NAMESPACE }}
+  JFROG_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+  JFROG_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+  JFROG_REPO_PATH: ${{ vars.ARTIFACTORY_REPO }}
+  JFROG_SERVICE:  ${{ vars.ARTIFACTORY_SERVICE }}
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-
-  build:
-
+  setup:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    environment: test
+    steps:
+    # Runs commands using the runners shell
+    - name: Get variables
+      run: |
+        echo "target=$TARGET_ENV"
+        echo "base=$GITHUB_REF_NAME"
+        echo "Environment: $TARGET_ENV OC_TARGET_PROJECT=$OC_TARGET_PROJECT"
+        echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
+        echo "..."
+        env | sort
+  build:
+    runs-on: ubuntu-latest
+    environment: test
     steps:
     - uses: actions/checkout@v4
-    - name: Build application Docker images
+    - name: Build dotnetapp docker images
       run: docker compose build
-      working-directory: ./applications
-    - name: Connect to OpenShift API
+      working-directory: ./applications/dotnetapp
+    - name: Build aspnetapp docker images
+      run: docker compose build
+      working-directory: ./applications/aspnetapp
+    - name: Connect to JFrog Artifactory non-interactive login using --password-stdin
       run: |
-        oc login --token=$AUTH_TOKEN --server=$CLUSTER
-        oc project $TARGET_PROJECT-$TARGET_ENV
+        echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin $JFROG_SERVICE
+    - name: Push application images to Artifactory container registry
+      run:  | 
+        docker tag dotnetapp $JFROG_SERVICE/$JFROG_REPO_PATH/dotnetapp
+        docker push $JFROG_SERVICE/$JFROG_REPO_PATH/dotnetapp
+        docker tag aspnetapp $JFROG_SERVICE/$JFROG_REPO_PATH/aspnetapp
+        docker push $JFROG_SERVICE/$JFROG_REPO_PATH/aspnetapp
+    - name: Disconnect docker from JFrog Artifactory
+      run: |
+        docker logout
+    - name: Connect to OpenShift API non-interactive login using current session token
+      run: |
+        oc login --token=$OC_AUTH_TOKEN --server=$OC_CLUSTER
         oc registry login
+        docker login -u unused -p $(oc whoami -t) $OC_REGISTRY
     - name: Push application images to OpenShift container registry
       run:  | 
-        docker tag webapp image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/webapp:github-latest
-        docker push image-registry.apps.silver.devops.gov.bc.ca/$TARGET_PROJECT-$TARGET_ENV/webapp:github-latest
-      
-      
+        docker tag dotnetapp $OC_REGISTRY/$OC_TARGET_PROJECT/dotnetapp
+        docker push $OC_REGISTRY/$OC_TARGET_PROJECT/dotnetapp
+        docker tag aspnetapp $OC_REGISTRY/$OC_TARGET_PROJECT/aspnetapp
+        docker push $OC_REGISTRY/$OC_TARGET_PROJECT/aspnetapp
+    - name: Disconnect docker from OpenShift container registry
+      run: |
+        docker logout
