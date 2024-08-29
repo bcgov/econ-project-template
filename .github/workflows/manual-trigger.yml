@@ -30,20 +30,19 @@ env:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
   setup:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
     environment: ${{ inputs.name }}
     steps:
-    # Runs a single command using the runners shell
+    # Runs commands using the runners shell
     - name: Get variables
       run: |
-        echo "target=${{ inputs.name }} "
+        echo "target=$TARGET_ENV "
         echo "base=$GITHUB_REF_NAME"
-        echo "Environment: ${{ inputs.name }} OC_TARGET_PROJECT=$OC_TARGET_PROJECT"
-        echo "Environment: ${{ inputs.name }} JFROG_REPO_PATH=$JFROG_REPO_PATH"
+        echo "Environment: $TARGET_ENV OC_TARGET_PROJECT=$OC_TARGET_PROJECT"
+        echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
         env | sort
   build:
