@@ -8,9 +8,7 @@ using static System.Console;
 // Variant of https://github.com/dotnet/core/tree/main/samples/dotnet-runtimeinfo
 // Ascii text: https://ascii.co.uk/text (Univers font)
 
-WriteLine("""
-DotNet Console Application...
-""");
+WriteLine("""DotNet Console Application...""");
 
 const double Mebi = 1024 * 1024;
 const double Gibi = Mebi * 1024;
@@ -95,5 +93,5 @@ bool GetBestValue(string[] paths, out long limit, [NotNullWhen(true)] out string
     return false;
 }
 
-Console.WriteLine("Run..");
+Console.WriteLine("""Run...""");
 while (true);
