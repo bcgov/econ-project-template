@@ -56,6 +56,9 @@ jobs:
     - name: Build aspnetapp docker images
       run: docker compose build
       working-directory: ./applications/aspnetapp
+    - name: Build docker images
+      run: docker compose build
+      working-directory: ./applications/Unity.GrantManager
     - name: Connect to JFrog Artifactory non-interactive login using --password-stdin
       run: |
         echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin $JFROG_SERVICE
@@ -65,6 +68,10 @@ jobs:
         docker push $JFROG_SERVICE/$JFROG_REPO_PATH/dotnetapp
         docker tag aspnetapp $JFROG_SERVICE/$JFROG_REPO_PATH/aspnetapp
         docker push $JFROG_SERVICE/$JFROG_REPO_PATH/aspnetapp
+        docker tag unity-grantmanager-dbmigrator $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-dbmigrator
+        docker push $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-dbmigrator
+        docker tag unity-grantmanager-web $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-web
+        docker push $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-web
     - name: Disconnect docker from JFrog Artifactory
       run: |
         docker logout
@@ -79,6 +86,10 @@ jobs:
         docker push $OC_REGISTRY/$OC_TARGET_PROJECT/dotnetapp
         docker tag aspnetapp $OC_REGISTRY/$OC_TARGET_PROJECT/aspnetapp
         docker push $OC_REGISTRY/$OC_TARGET_PROJECT/aspnetapp
+        docker tag unity-grantmanager-dbmigrator $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-dbmigrator
+        docker push $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-dbmigrator
+        docker tag unity-grantmanager-web $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-web
+        docker push $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-web
     - name: Disconnect docker from OpenShift container registry
       run: |
         docker logout

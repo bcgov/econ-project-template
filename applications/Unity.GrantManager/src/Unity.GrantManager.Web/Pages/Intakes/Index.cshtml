@@ -1,0 +1,35 @@
+﻿@page
+@using Unity.GrantManager.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@using Unity.GrantManager.Web.Pages.Intakes
+@using Microsoft.Extensions.Localization
+@model IndexModel
+@inject IStringLocalizer<GrantManagerResource> L
+@inject IPageLayout PageLayout
+@{
+    PageLayout.Content.MenuItemName = "GrantManager.Intakes";
+    PageLayout.Content.Title = L["Intakes"].Value;    
+    ViewBag.PageTitle = L["Intakes"].Value;
+}
+@section styles {
+    <abp-style src="/Pages/Intakes/Index.css" />
+}
+@section scripts
+    {
+    <abp-script src="/Pages/Intakes/Index.js" />
+}
+
+<div class="container-fluid px-0">
+    <div class="unity-page-titlebar">
+        <h4>@L["Intakes"]</h4>
+        <abp-button id="CreateIntakeButton"
+            text="@L["Common:Command:Create"].Value"
+            icon-type="Other"
+            icon="fl fl-add-to"
+            button-type="Light" />
+    </div>
+    <div class="p-3">
+        <abp-table id="IntakesTable"></abp-table>
+    </div>
+</div>
+

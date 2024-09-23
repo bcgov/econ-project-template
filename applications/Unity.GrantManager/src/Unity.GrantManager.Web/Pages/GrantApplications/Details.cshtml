@@ -1,0 +1,324 @@
+﻿@page "{@Model.ApplicationFormSubmissionId?}"
+@* #pragma warning disable S1128 *@
+@using Unity.GrantManager.Localization
+@using Unity.GrantManager.Web.Views.Shared.Components.CommentsWidget;
+@using Unity.GrantManager.Web.Views.Shared.Components.HistoryWidget;
+@using Unity.GrantManager.Web.Views.Shared.Components.CustomTabWidget
+@using Unity.GrantManager.Web.Views.Shared.Components.DetailsActionBar;
+@using Unity.GrantManager.Web.Views.Shared.Components.ReviewList;
+@using Unity.GrantManager.Web.Views.Shared.Components.UserInfoWidget;
+@using Unity.GrantManager.Web.Views.Shared.Components.AssessmentResults;
+@using Unity.GrantManager.Web.Views.Shared.Components.AssessmentScoresWidget;
+@using Unity.GrantManager.Web.Views.Shared.Components.ProjectInfo;
+@using Unity.Modules.Shared.Correlation
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@using Unity.GrantManager.Web.Pages.GrantApplications
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.Features
+@using Volo.Abp.MultiTenancy
+@* #pragma warning restore S1128 *@
+
+
+@model DetailsModel
+@inject IStringLocalizer<GrantManagerResource> L
+@inject IPageLayout PageLayout
+@inject IFeatureChecker FeatureChecker
+@inject ICurrentTenant CurrentTenant
+
+@{
+    PageLayout.Content.Title = L["Grants"].Value;
+}
+@section styles
+{
+    <abp-style src="/libs/formiojs/formio.form.css" />
+    <abp-style src="/Pages/GrantApplications/Details.css" />
+}
+@section scripts
+{
+    <abp-script src="/Pages/GrantApplications/Details.js" />
+    <abp-script src="/libs/formiojs/formio.form.js" />
+    <abp-script src="/libs/jspdf/dist/jspdf.umd.js" />
+    <abp-script src="/libs/html2canvas/dist/html2canvas.min.js" />
+}
+
+<div id="applicationBreadcrumbWidget">
+    @await Component.InvokeAsync("ApplicationBreadcrumbWidget", new { applicationId = @Model.ApplicationId })
+</div>
+@await Component.InvokeAsync(typeof(DetailsActionBar), new { applicationId = @Model.ApplicationId })
+
+<input type="hidden" id="DetailsViewApplicationId" value="@Model.ApplicationId" />
+<input type="hidden" id="ApplicationFormSubmissionId" value="@Model.ApplicationFormSubmissionId" />
+<input type="hidden" id="ChefsSubmissionId" value="@Model.ChefsSubmissionId" />
+<input type="hidden" id="ApplicationFormSubmissionData" value="@Model.ApplicationFormSubmissionData" />
+<input type="hidden" id="ApplicationFormId" value="@Model.ApplicationFormId" />
+<input type="hidden" id="HasRenderedHTML" value="@Model.HasRenderedHTML.ToString()" />
+<input type="hidden" id="CurrentUserId" value="@Model.CurrentUserId" />
+<input type="hidden" id="CurrentUserName" value="@Model.CurrentUserName" />
+<input type="hidden" id="Extensions" value="@Model.Extensions" />
+<input type="hidden" id="MaxFileSize" value="@Model.MaxFileSize" />
+<input type="hidden" id="ApplicationFormVersionId" value="@Model.ApplicationFormVersionId" />
+@functions
+{
+    public string GetInitials(string name)
+    {
+        // StringSplitOptions.RemoveEmptyEntries excludes empty spaces returned by the Split method
+        string[] nameSplit = name.Split(new string[] { ",", " " }, StringSplitOptions.RemoveEmptyEntries);
+
+        string initials = "";
+
+        foreach (string item in nameSplit)
+        {
+            initials += item.Substring(0, 1).ToUpper();
+        }
+
+        return initials;
+    }
+}
+<abp-row class="m-0 h-100 application-details-container">
+    <abp-column size="_8" class="p-0">
+        <abp-card>
+            <abp-tabs name="detailsTab" id="detailsTab" class="nav-justified">
+
+                @*-------- Submission Section ---------*@
+                <abp-tab name="nav-summery" active="true" title="Submission">
+
+                    <div class="container-fluid">
+                        <abp-row>
+                            <abp-column size="_12">
+                                <abp-button icon="fl fl-pdf" icon-type="Other" id="printPdf" class="pdf-icon"></abp-button>
+                                <div id="formio">@Html.Raw(@Model.ApplicationFormSubmissionHtml)</div>
+                            </abp-column>
+
+                        </abp-row>
+                    </div>
+                    <abp-row>
+                        <abp-column size="_12" class="spinner-loader">
+                            <div class="spinner-grow" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </abp-column>
+                    </abp-row>
+                </abp-tab>
+                @*-------- Submission Section END ---------*@
+
+                @*-------- Review & Assessment Section ---------*@
+                <abp-tab name="nav-review-and-assessment" title="Review & Assessment">
+                    <div class="w-100 px-2" id="assessmentResultWidget">
+                        @await Component.InvokeAsync("AssessmentResults", new { applicationId = Model.ApplicationId, applicationFormVersionId = Model.ApplicationFormVersionId })
+                    </div>
+                    <div class="w-100 px-2" id="assessmentMainView">
+                        @await Component.InvokeAsync("ReviewList")
+                    </div>
+                    <abp-row id="assessmentAddReviewView" class="p-2" style="display:none;">
+                        <abp-column size="_12">
+                            <abp-row>
+                                <abp-column size="_12" class="back-button-container">
+                                    <abp-button id="backBtn" class="btn-sm back-btn" icon="angle-left" text="Back to Review List" />
+                                </abp-column>
+                                <abp-column size="_8">
+                                    <h4 class="review-heading">Assessment Result Attachments</h4>
+                                </abp-column>
+                                <abp-column size="_4" class="add-review-btn-container">
+
+                                </abp-column>
+                            </abp-row>
+
+                        </abp-column>
+                    </abp-row>
+                </abp-tab>
+                @*-------- Review & Assessment Section END ---------*@
+
+                @*-------- Project Info Section ---------*@
+                <abp-tab name="nav-project-info" title="Project Info">
+                    <div class="w-100 px-2" id="projectInfoWidget">
+                        @await Component.InvokeAsync("ProjectInfo", new { applicationId = Model.ApplicationId, applicationFormVersionId = Model.ApplicationFormVersionId })
+                    </div>
+                </abp-tab>
+                @*-------- Project Info Section END ---------*@
+
+                @*-------- Applicant Info Section ---------*@
+                <abp-tab name="nav-organization-info" title="Applicant Info">
+                    <div class="w-100 px-2" id="ApplicantInfoWidget">
+                        @await Component.InvokeAsync("ApplicantInfo", new { applicationId = Model.ApplicationId, applicationFormVersionId = Model.ApplicationFormVersionId })
+                    </div>
+                </abp-tab>
+                @*-------- Applicant Info Section END ---------*@
+
+                @*-------- Approval Section ---------*@
+                @* <abp-tab name="nav-approval" title="Approval">
+                <div style="text-align:center">
+                <img src="/images/under-construction.png" alt="under-construction">
+                </div>
+                </abp-tab> *@
+                @*-------- Approval Section END ---------*@
+                @if (await FeatureChecker.IsEnabledAsync("Unity.Payments"))
+                {
+                    <abp-tab name="nav-payment-info" title="Payment Info">
+                        <div class="w-100 px-2" id="PaymentInfoWidget">
+                            @await Component.InvokeAsync("PaymentInfo", new { applicationId = Model.ApplicationId, applicationFormVersionId = Model.ApplicationFormVersionId })
+                        </div>
+                    </abp-tab>
+                }
+
+                @if (await FeatureChecker.IsEnabledAsync("Unity.Flex"))
+                {
+                    @foreach (var customTab in Model.CustomTabs)
+                    {
+                        <abp-tab name="@customTab.Worksheet?.Name" title="@customTab.Worksheet?.Title">
+                            @await Component.InvokeAsync(typeof(CustomTabWidgetViewComponent), new
+                                {
+                                    instanceCorrelationId = Model.ApplicationId,
+                                    instanceCorrelationProvider = CorrelationConsts.Application,
+                                    sheetCorrelationId = Model.ApplicationFormVersionId,
+                                    sheetCorrelationProvider = CorrelationConsts.FormVersion,
+                                    uiAnchor = customTab.UiAnchor,
+                                    name = customTab.Worksheet?.Name,
+                                    title = customTab.Worksheet?.Title,
+                                    worksheetId = customTab.Worksheet?.Id
+                                })
+                        </abp-tab>
+                    }
+                }
+            </abp-tabs>
+        </abp-card>
+    </abp-column>
+    <abp-column size="_4" class="pe-0 ps-2">
+        <abp-card class="right-card">
+            <ul class="nav nav-tabs details-nav flex-nowrap" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab" aria-controls="home" aria-selected="true">Details</button>
+                </li>
+                @* <li class="nav-item" role="presentation">
+                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false"> <i class="fl fl-history" aria-hidden="true"></i> (0)</button>
+                </li> *@
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button" role="tab" aria-controls="comments" aria-selected="false"> <i class="fl fl-comments" aria-hidden="true"></i> (<span id="application_comments_count">0</span>)</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="attachments-tab" data-bs-toggle="tab" data-bs-target="#attachments" type="button" role="tab" aria-controls="attachments" aria-selected="false"><i class="fl fl-paperclip" aria-hidden="true"></i> (<span id="application_attachment_count">0</span>)</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="links-tab" data-bs-toggle="tab" data-bs-target="#links" type="button" role="tab" aria-controls="links" aria-selected="false"><i class="fl fl-link" aria-hidden="true"></i> (<span id="application_links_count">0</span>)</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false"><i class="fl fl-history" aria-hidden="true"></i> </button>
+                </li>                
+            </ul>
+
+
+            <div class="tab-content details-scrollable" id="myTabContent">
+
+                @*-------- Details Tab Section ---------*@
+                <div class="tab-pane  fade show active" id="details" role="tabpanel" aria-labelledby="home-tab">
+                    <div id="applicationDetails">
+                        <div id="applicationStatusWidget">
+                            @await Component.InvokeAsync("ApplicationStatusWidget", new { applicationId = Model.ApplicationId })
+                        </div>
+                        <div id="applicationTagsWidget">
+                            @await Component.InvokeAsync("ApplicationTagsWidget", new { applicationId = Model.ApplicationId })
+                        </div>
+                        <div id="summaryWidgetArea" class="px-3 pt-4 pb-2">
+                            @await Component.InvokeAsync("SummaryWidget", new { applicationId = Model.ApplicationId })
+                        </div>
+                    </div>
+                    <div id="reviewDetails" style="display:none">
+                        <input type="hidden" id="AssessmentId" value="@Model.AssessmentId" />
+                        <div id="assessmentUserDetailsWidget">
+                            @await Component.InvokeAsync("UserInfoWidget", new { displayName = "", badge = "", title = "" })
+                        </div>
+
+                        <h6 class="fw-bold px-3 pt-4 pb-2">Assessment Scores</h6>
+
+                        <div id="assessmentScoresWidgetArea">
+                            @await Component.InvokeAsync("AssessmentScoresWidget", new { assessmentId = Model.AssessmentId })
+                        </div>
+
+                        <h6 class="fw-bold px-3 pt-4 pb-2">Scoring Attachments</h6>
+
+                        @await Component.InvokeAsync("AssessmentResultAttachments")
+
+                        <div class="d-flex justify-content-end m-3">
+                            <form id="form" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                                <input id="assessment_upload" name="assessment_upload" type="file" size="1" multiple onchange="uploadAssessmentFiles('assessment_upload');" style="display: none" />
+                                <abp-button text="Add Attachments"
+                                            id="assessment_upload_btn"
+                                            class="assessment-upload-btn"
+                                            icon-type="Other"
+                                            icon="fl fl-plus"
+                                            button-type="Light" />
+                            </form>
+                        </div>
+
+                        <div class="m-3">
+                            <h6 class="fw-bold py-2 m-0">Recommendation</h6>
+                            <abp-select id="recommendation_select" name="recommendation_select" asp-for="SelectedAction" suppress-label="true" asp-items="@Model.ActionList" class="">
+                                <option value="null" disabled>Please choose...</option>
+                            </abp-select>
+
+                        </div>
+
+                        <div class="p-3">
+                            <h6 class="fw-bold m-0">Comments</h6>
+                            <div id="assessmentCommentsWidget">
+                                @await Component.InvokeAsync("CommentsWidget", new { commentType = 1 })
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                @*-------- Details Tab Section END ---------*@
+
+
+                @*-------- Comments Tab Section ---------*@
+                <div class="tab-pane" id="comments" role="tabpanel" aria-labelledby="comments-tab">
+                    <h6 class="fw-bold px-3 pt-4 pb-2 m-0">Comments</h6>
+                    <div class="px-3 pb-2" id="applicationCommentsWidget">
+                        @await Component.InvokeAsync("CommentsWidget", new { ownerId = Model.ApplicationId, commentType = 0, currentUserId = Model.CurrentUserId })
+                    </div>
+                </div>
+                @*-------- Comments Tab Section END ---------*@
+
+                @*-------- Attachments Tab Section ---------*@
+                <div class="tab-pane" id="attachments" role="tabpanel" aria-labelledby="attachments-tab">
+                    <h6 class="fw-bold px-3 pt-4 pb-2 m-0">Assessment Attachments</h6>
+                    @await Component.InvokeAsync("ApplicationAttachments")
+
+                    <div class="d-flex justify-content-end m-3">
+                        <form id="form" name="form" action="/uploader" enctype="multipart/form-data" method="post">
+                            <input id="application_attachment_upload" name="application_attachment_upload" type="file" size="1" multiple onchange="uploadApplicationFiles('application_attachment_upload');" style="display: none" />
+                            <abp-button text="Add Attachments"
+                                        id="application_attachment_upload_btn"
+                                        icon-type="Other"
+                                        icon="fl fl-plus"
+                                        button-type="Light" />
+                        </form>
+                    </div>
+                    @await Component.InvokeAsync("ChefsAttachments")
+                </div>
+                @*-------- Attachments Tab Section END ---------*@
+
+                @*-------- Links Tab Section ---------*@
+                <div class="tab-pane" id="links" role="tabpanel" aria-labelledby="links-tab">
+                    <h6 class="fw-bold px-3 pt-4 pb-3 m-0">Links</h6>
+                    <div class="px-3 pb-2" id="applicationRecordsWidget">
+                        @await Component.InvokeAsync("ApplicationLinksWidget", new { applicationId = Model.ApplicationId })
+                    </div>
+                </div>
+                @*------- Links Tab Section END ---------*@
+
+                @*-------- History Tab Section ---------*@
+                <div class="tab-pane" id="history" role="tabpanel" aria-labelledby="history-tab">                    
+                    <div class="px-3 pb-2" id="applicationHistoryWidget">
+                        @await Component.InvokeAsync("HistoryWidget", new { applicationId = Model.ApplicationId })
+                    </div>
+                </div>
+                @*-------- History Tab Section END ---------*@
+            </div>
+
+        </abp-card>
+    </abp-column>
+</abp-row>
+
+
+
+
