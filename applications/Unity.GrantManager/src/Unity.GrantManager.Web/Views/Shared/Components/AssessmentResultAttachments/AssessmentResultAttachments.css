@@ -1,0 +1,7 @@
+.assessment-attachment-table th:first-child, .assessment-attachment-table td:first-child {
+    text-align: center;
+}
+
+#AssessmentResultAttachmentsTable_wrapper .dataTables_scrollBody {
+    overflow: unset !important;
+}
