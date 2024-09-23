@@ -95,5 +95,5 @@ bool GetBestValue(string[] paths, out long limit, [NotNullWhen(true)] out string
     return false;
 }
 
-Console.WriteLine("Run...");
+Console.WriteLine("Run..");
 while (true);
