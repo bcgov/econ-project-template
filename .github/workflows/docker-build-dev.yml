@@ -17,7 +17,7 @@ on:
       - 'README.md'
       - 'SECURITY.md'
 
-      env:
+env:
   TARGET_ENV: dev 
   OC_CLUSTER: ${{ vars.OPENSHIFT_CLUSTER }}
   OC_REGISTRY: ${{ vars.OPENSHIFT_REGISTRY }}
