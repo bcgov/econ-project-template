@@ -16,6 +16,7 @@ on:
       - 'LICENSE'
       - 'README.md'
       - 'SECURITY.md'
+
 env:
   TARGET_ENV: dev 
   OC_CLUSTER: ${{ vars.OPENSHIFT_CLUSTER }}
