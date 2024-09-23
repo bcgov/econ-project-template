@@ -1,0 +1,74 @@
+﻿@page
+@using Microsoft.Extensions.Localization
+@using Unity.Flex.Localization;
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal;
+@using Unity.Flex.Web.Pages.ScoresheetConfiguration;
+@model Unity.Flex.Web.Pages.ScoresheetConfiguration.ScoresheetModalModel
+
+@inject IStringLocalizer<FlexResource> L
+
+@{
+    Layout = null;
+}
+@section scripts
+{
+    <abp-script src="/Pages/ScoresheetConfiguration/Index.js" />
+}
+<form method="post" asp-page-handler="OnPostAsync" id="scoresheetInfo">
+    <abp-input type="hidden" id="ScoresheetId" asp-for="@Model.Scoresheet.Id" />
+    <abp-input type="hidden" id="ActionType" asp-for="@Model.Scoresheet.ActionType" />
+    <abp-input type="hidden" id="Published" asp-for="@Model.Scoresheet.Published" />
+    <abp-modal size="Large" id="scoresheet-info-modal">
+        <abp-modal-header class="site-info-modal-header" title="@Model.Scoresheet.ActionType"></abp-modal-header>
+        <abp-modal-body>
+            <abp-row class="m-0 p-0">
+                <abp-column size="_12" class="px-1">
+                    <abp-input asp-for="@Model.Scoresheet.Title" id="scoresheetTitle" onkeyup="updateScoresheetName('@Model.Scoresheet.ActionType')" />
+                </abp-column>
+                <abp-column size="_12" class="px-1">
+                    <abp-input asp-for="@Model.Scoresheet.Name" id="scoresheetName" readonly="true" class="disabled" />
+                </abp-column>
+            </abp-row>
+        </abp-modal-body>
+        <abp-modal-footer>
+            <button type="submit" class="btn btn-primary">@AbpModalButtons.Save</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@AbpModalButtons.Cancel</button>
+            @if (!Model.Scoresheet.ActionType.StartsWith("Add") && !Model.Scoresheet.Published)
+            {
+                <button type="button" class="btn btn-danger" onclick="deleteScoresheet()">Delete</button>
+            }
+        </abp-modal-footer>
+    </abp-modal>
+</form>
+
+<script>
+
+    function deleteScoresheet() {
+        Swal.fire({
+            title: "Delete Scoresheet",
+            text: 'Are you sure you want to delete this scoresheet?',
+            showCancelButton: true,
+            confirmButtonText: 'Confirm',
+            customClass: {
+                confirmButton: 'btn btn-primary',
+                cancelButton: 'btn btn-secondary'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#ActionType').val('Delete Scoresheet');
+                $('#scoresheetInfo').submit();
+            }
+        });
+    }
+
+    function updateScoresheetName(action) {
+        if (action == 'Edit Scoresheet') {
+            return;
+        }
+
+        let src = $('#scoresheetTitle');
+        let dest = $('#scoresheetName');
+        let name = src.val().toLowerCase().trim() + '-v1';
+        dest.val(name.replace(/\s+/g, ""));
+    }
+</script>
