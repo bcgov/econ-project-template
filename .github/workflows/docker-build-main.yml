@@ -27,6 +27,8 @@ env:
   JFROG_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
   JFROG_REPO_PATH: ${{ vars.ARTIFACTORY_REPO }}
   JFROG_SERVICE:  ${{ vars.ARTIFACTORY_SERVICE }}
+  UGM_BUILD_VERSION: ${{vars.UGM_BUILD_VERSION}}
+  UGM_BUILD_REVISION: ${{vars.UGM_BUILD_REVISION}}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -56,6 +58,18 @@ jobs:
     - name: Build aspnetapp docker images
       run: docker compose build
       working-directory: ./applications/aspnetapp
+    - name: Get BuildId
+      id: commit
+      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+    - name: Set buildArgs
+      run:  |
+        echo "buildArgs UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}"
+    - name: Build Docker images
+      run: |
+        rm -f ./docker-compose.override.yml
+        docker compose build --build-arg UNITY_BUILD_VERSION=${{env.UGM_BUILD_VERSION}} --build-arg UNITY_BUILD_REVISION=${{env.UGM_BUILD_REVISION}}
+      working-directory: ./applications/Unity.GrantManager
+
     - name: Connect to JFrog Artifactory non-interactive login using --password-stdin
       run: |
         echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin $JFROG_SERVICE
@@ -65,6 +79,10 @@ jobs:
         docker push $JFROG_SERVICE/$JFROG_REPO_PATH/dotnetapp:stable
         docker tag aspnetapp $JFROG_SERVICE/$JFROG_REPO_PATH/aspnetapp:stable
         docker push $JFROG_SERVICE/$JFROG_REPO_PATH/aspnetapp:stable
+        docker tag unity-grantmanager-dbmigrator $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-dbmigrator:stable
+        docker push $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-dbmigrator:stable
+        docker tag unity-grantmanager-web $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-web:stable
+        docker push $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-web:stable
     - name: Disconnect docker from JFrog Artifactory
       run: |
         docker logout
@@ -79,6 +97,10 @@ jobs:
         docker push $OC_REGISTRY/$OC_TARGET_PROJECT/dotnetapp:stable
         docker tag aspnetapp $OC_REGISTRY/$OC_TARGET_PROJECT/aspnetapp:stable
         docker push $OC_REGISTRY/$OC_TARGET_PROJECT/aspnetapp:stable
-    - name: Disconnect docker from OpenShift container registry
+        docker tag unity-grantmanager-dbmigrator $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-dbmigrator:stable
+        docker push $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-dbmigrator:stable
+        docker tag unity-grantmanager-web $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-web:stable
+        docker push $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-web:stable
+        - name: Disconnect docker from OpenShift container registry
       run: |
         docker logout
