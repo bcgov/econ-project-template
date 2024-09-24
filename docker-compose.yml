@@ -1,3 +1,4 @@
+name: local
 services:
   console-application:
     image: dotnetapp
