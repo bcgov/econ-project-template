@@ -1,4 +1,5 @@
 name: local
+# YAML configuration file to manage services, volumes, and networks.
 services:
   console-application:
     image: dotnetapp
