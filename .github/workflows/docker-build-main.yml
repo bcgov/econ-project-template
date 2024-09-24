@@ -101,6 +101,6 @@ jobs:
         docker push $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-dbmigrator:stable
         docker tag unity-grantmanager-web $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-web:stable
         docker push $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-web:stable
-        - name: Disconnect docker from OpenShift container registry
+    - name: Disconnect docker from OpenShift container registry
       run: |
         docker logout
