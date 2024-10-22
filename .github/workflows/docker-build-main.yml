@@ -71,9 +71,9 @@ jobs:
         MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+' | grep -oE '[0-9]+')
         VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
         VERSION_PATCH=$((VERSION_PATCH + 1))
-        env | sort
         # Construct the new tag
         NEW_TAG="${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
+        echo $(NEW_TAG)
         echo "gittag=${NEW_TAG}" >> $GITHUB_OUTPUT
         echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
         echo "tagversion=${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}" >> $GITHUB_OUTPUT
