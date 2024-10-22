@@ -76,9 +76,9 @@ jobs:
         UGM_BUILD_VERSION=$($MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH)
         UGM_NEW_TAG="${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
 
-        echo "gittag=${UGM_NEW_TAG}" >> $GITHUB_OUTPUT
-        echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
-        echo "tagversion=$UGM_BUILD_VERSION" >> $GITHUB_OUTPUT
+        # echo "gittag=${UGM_NEW_TAG}" >> $GITHUB_OUTPUT
+        # echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
+        # echo "tagversion=$UGM_BUILD_VERSION" >> $GITHUB_OUTPUT
     - name: Create Git Tag
       run: |
         git config user.name "GitHub Actions 1"
