@@ -68,11 +68,12 @@ jobs:
       run: |
         # Extract the major and minor version parts using grep
         MAJOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+')
-        MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+' | grep -oE '[0-9]+')
+        MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+')
         VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
-        echo $MAJOR_VERSION
-        echo $MINOR_VERSION
-        echo $VERSION_PATCH
+        echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+'
+        echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+'
+        echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$'
+
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         VERSION_PATCH=$((VERSION_PATCH + 1))
         echo $VERSION_PATCH
