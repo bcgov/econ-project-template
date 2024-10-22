@@ -76,14 +76,13 @@ jobs:
 
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         VERSION_PATCH=$((VERSION_PATCH + 1))
-        echo $VERSION_PATCH
-        # Construct the new tag
+        echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         # NEW_TAG="${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
         # echo "${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
         # echo "$(NEW_TAG)"
         # echo "gittag=${NEW_TAG}" >> $GITHUB_OUTPUT
         # echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
-        # echo "tagversion=${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}" >> $GITHUB_OUTPUT
+        echo "tagversion=$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH" >> $GITHUB_OUTPUT
     - name: Create Git Tag
       run: |
         git config user.name "GitHub Actions 1"
@@ -93,11 +92,12 @@ jobs:
     - name: Set repository version variable
       id: setversion
       run: | 
-        gh variable list --env dev 
+        gh variable list --env dev
+        gh variable set UGM_BUILD_VERSION --env dev --body "${{steps.tag-selector.outputs.tagversion}}"
     outputs: 
       TAGNAME: ${{steps.tag-selector.outputs.gittag}}
       TAGMESSAGE: ${{steps.tag-selector.outputs.tagmsg}}
-      TAGPATCH: ${{steps.tag-selector.outputs.tagversion}}
+      TAGVERSION: ${{steps.tag-selector.outputs.tagversion}}
 
   build:
     runs-on: ubuntu-latest
