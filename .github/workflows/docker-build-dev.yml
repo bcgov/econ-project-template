@@ -70,25 +70,21 @@ jobs:
         MAJOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+')
         MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+')
         VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
-        echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+'
-        echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+'
-        echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$'
-
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         VERSION_PATCH=$((VERSION_PATCH + 1))
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
-        # NEW_TAG="${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
-        # echo "${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
-        # echo "$(NEW_TAG)"
-        # echo "gittag=${NEW_TAG}" >> $GITHUB_OUTPUT
-        # echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
-        echo "tagversion=$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH" >> $GITHUB_OUTPUT
+        UGM_BUILD_VERSION=$($MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH)
+        UGM_NEW_TAG="${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
+
+        echo "gittag=${UGM_NEW_TAG}" >> $GITHUB_OUTPUT
+        echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
+        echo "tagversion=$UGM_BUILD_VERSION" >> $GITHUB_OUTPUT
     - name: Create Git Tag
       run: |
         git config user.name "GitHub Actions 1"
         git config user.email "github-actions@users.noreply.github.com"
-        # git tag -a "${{steps.tag-selector.outputs.gittag}}" -m "${{steps.tag-selector.outputs.tagmsg}}"
-        # git push origin "${{steps.tag-selector.outputs.gittag}}"
+        git tag -a "${{steps.tag-selector.outputs.gittag}}" -m "${{steps.tag-selector.outputs.tagmsg}}"
+        git push origin "${{steps.tag-selector.outputs.gittag}}"
     - name: Set repository version variable
       id: setversion
       run: | 
