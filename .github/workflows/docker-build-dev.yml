@@ -53,6 +53,7 @@ jobs:
         echo "..."
         env | sort
   GenerateTag:
+    needs: [Setup]
     runs-on: ubuntu-latest
     environment: dev
     steps:
@@ -89,12 +90,12 @@ jobs:
       run: | 
         gh variable list --env dev
         gh variable set UGM_BUILD_VERSION --env dev --body "${{steps.tag-selector.outputs.tagversion}}"
+        gh variable list --env dev
     outputs: 
       TAGNAME: ${{steps.tag-selector.outputs.gittag}}
       TAGMESSAGE: ${{steps.tag-selector.outputs.tagmsg}}
       TAGVERSION: ${{steps.tag-selector.outputs.tagversion}}
-
-  build:
+  Build:
     needs: [Setup,GenerateTag]
     runs-on: ubuntu-latest
     environment: dev
