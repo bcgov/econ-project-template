@@ -85,6 +85,7 @@ jobs:
     - name: Set repository version variable
       id: setversion
       run: | 
+        gh variable list --env test 
         gh variable set UGM_BUILD_VERSION --env test --body "${{steps.tag-selector.outputs.tagversion}}"
     outputs: 
       TAGNAME: ${{steps.tag-selector.outputs.gittag}}
