@@ -73,8 +73,8 @@ jobs:
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         VERSION_PATCH=$((VERSION_PATCH + 1))
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
-        UGM_BUILD_VERSION=$($MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH)
-        UGM_NEW_TAG="${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
+        xUGM_BUILD_VERSION=$($MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH)
+        xUGM_NEW_TAG="${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
 
         # echo "gittag=${UGM_NEW_TAG}" >> $GITHUB_OUTPUT
         # echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
@@ -83,13 +83,13 @@ jobs:
       run: |
         git config user.name "GitHub Actions 1"
         git config user.email "github-actions@users.noreply.github.com"
-        git tag -a "${{steps.tag-selector.outputs.gittag}}" -m "${{steps.tag-selector.outputs.tagmsg}}"
-        git push origin "${{steps.tag-selector.outputs.gittag}}"
+        #git tag -a "${{steps.tag-selector.outputs.gittag}}" -m "${{steps.tag-selector.outputs.tagmsg}}"
+        #git push origin "${{steps.tag-selector.outputs.gittag}}"
     - name: Set repository version variable
       id: setversion
       run: | 
         gh variable list --env dev
-        gh variable set UGM_BUILD_VERSION --env dev --body "${{steps.tag-selector.outputs.tagversion}}"
+        #gh variable set UGM_BUILD_VERSION --env dev --body "${{steps.tag-selector.outputs.tagversion}}"
     outputs: 
       TAGNAME: ${{steps.tag-selector.outputs.gittag}}
       TAGMESSAGE: ${{steps.tag-selector.outputs.tagmsg}}
