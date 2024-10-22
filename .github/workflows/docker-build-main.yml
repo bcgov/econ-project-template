@@ -66,7 +66,8 @@ jobs:
     - name: Generate Next Git Tag
       id: tag-selector
       run: |
-        VERSION_PATCH=$(git tag --list "${{env.RELEASE_PREFIX}}${{env.RELEASE_VERSION}}.*" --sort=-version:refname | head -n 1 | grep -oE '[0-9]+$')
+        env | grep RELEASE
+        VERSION_PATCH=$(git tag --list "${{env.RELEASE_PREFIX}}${{env.RELEASE_VERSION}}" --sort=-version:refname | head -n 1 | grep -oE '[0-9]+$')
         if [ -z "$VERSION_PATCH" ]; then
           VERSION_PATCH=0
         else
