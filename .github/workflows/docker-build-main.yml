@@ -68,7 +68,7 @@ jobs:
       id: tag-selector
       run: |
         # Extract the major and minor version parts
-        MAJOR_MINOR_VERSION=$(echo "${{env.RELEASE_VERSION}}" | sed 's/\.[0-9]*$//')
+        MAJOR_MINOR_VERSION=$(echo "${{env.RELEASE_VERSION}}" | grep -oE '^[0-9]+\.[0-9]+')
         # Extract the latest patch version for the given major.minor version
         VERSION_PATCH=$(git tag --list "${{env.RELEASE_PREFIX}}${MAJOR_MINOR_VERSION}.*" --sort=-version:refname | head -n 1 | grep -oE '[0-9]+$')
         if [ -z "$VERSION_PATCH" ]; then
