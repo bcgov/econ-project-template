@@ -51,6 +51,7 @@ jobs:
         echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
         env | sort
+
   GenerateTag:
     runs-on: ubuntu-latest
     steps:
@@ -66,18 +67,25 @@ jobs:
     - name: Generate Next Git Tag
       id: tag-selector
       run: |
+        # Extract the major and minor version parts
+        MAJOR_MINOR_VERSION=$(echo "${{env.RELEASE_VERSION}}" | sed 's/\.[0-9]*$//')
         # Extract the latest patch version for the given major.minor version
-        VERSION_PATCH=$(git tag --list "${{env.RELEASE_PREFIX}}${{env.RELEASE_VERSION%.*}}.*" --sort=-version:refname | head -n 1 | grep -oE '[0-9]+$')
+        VERSION_PATCH=$(git tag --list "${{env.RELEASE_PREFIX}}${MAJOR_MINOR_VERSION}.*" --sort=-version:refname | head -n 1 | grep -oE '[0-9]+$')
         if [ -z "$VERSION_PATCH" ]; then
           VERSION_PATCH=0
         else
           VERSION_PATCH=$((VERSION_PATCH + 1))
         fi
         # Construct the new tag
-        NEW_TAG="${{env.RELEASE_PREFIX}}${{env.RELEASE_VERSION%.*}}.${VERSION_PATCH}"
+        NEW_TAG="${{env.RELEASE_PREFIX}}${MAJOR_MINOR_VERSION}.${VERSION_PATCH}"
         echo "gittag=${NEW_TAG}" >> $GITHUB_OUTPUT
         echo "tagmsg=${{env.RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
         echo "tagpatch=${VERSION_PATCH}" >> $GITHUB_OUTPUT
+  
+    - name: Create Git Tag
+      run: |
+        git tag -a "${{steps.tag-selector.outputs.gittag}}" -m "${{steps.tag-selector.outputs.tagmsg}}"
+        git push origin "${{steps.tag-selector.outputs.gittag}}"
     outputs: 
       TAGNAME: ${{steps.tag-selector.outputs.gittag}}
       TAGMESSAGE: ${{steps.tag-selector.outputs.tagmsg}}
