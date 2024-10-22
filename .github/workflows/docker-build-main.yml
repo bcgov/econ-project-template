@@ -73,7 +73,8 @@ jobs:
         VERSION_PATCH=$((VERSION_PATCH + 1))
         # Construct the new tag
         NEW_TAG="${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
-        echo $(NEW_TAG)
+        echo "${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
+        echo "$(NEW_TAG)"
         echo "gittag=${NEW_TAG}" >> $GITHUB_OUTPUT
         echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
         echo "tagversion=${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}" >> $GITHUB_OUTPUT
