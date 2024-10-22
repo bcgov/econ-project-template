@@ -30,6 +30,9 @@ env:
   UGM_BUILD_VERSION: ${{vars.UGM_BUILD_VERSION}}
   UGM_BUILD_REVISION: ${{vars.UGM_BUILD_REVISION}}
 
+  UGM_RELEASE_PREFIX: API_v
+  UGM_RELEASE_MESSAGE: Test
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   setup:
@@ -47,6 +50,48 @@ jobs:
         echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
         env | sort
+  GenerateTag:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+          fetch-depth: '0'
+    - name: Get current date
+      id: date-selector
+      run: echo "date=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
+    - name: Generate Next Git Tag
+      id: tag-selector
+      run: |
+        # Extract the major and minor version parts using grep
+        MAJOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+')
+        MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+' | grep -oE '[0-9]+')
+        VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
+        echo "${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
+        # VERSION_PATCH=$((VERSION_PATCH + 1))
+        # Construct the new tag
+        # NEW_TAG="${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
+        # echo "${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
+        # echo "$(NEW_TAG)"
+        # echo "gittag=${NEW_TAG}" >> $GITHUB_OUTPUT
+        # echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
+        # echo "tagversion=${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}" >> $GITHUB_OUTPUT
+    - name: Create Git Tag
+      run: |
+        git config user.name "GitHub Actions 1"
+        git config user.email "github-actions@users.noreply.github.com"
+        # git tag -a "${{steps.tag-selector.outputs.gittag}}" -m "${{steps.tag-selector.outputs.tagmsg}}"
+        # git push origin "${{steps.tag-selector.outputs.gittag}}"
+    - name: Set repository version variable
+      id: setversion
+      run: | 
+        gh variable list --env dev 
+    outputs: 
+      TAGNAME: ${{steps.tag-selector.outputs.gittag}}
+      TAGMESSAGE: ${{steps.tag-selector.outputs.tagmsg}}
+      TAGPATCH: ${{steps.tag-selector.outputs.tagversion}}
+
   build:
     runs-on: ubuntu-latest
     environment: dev
