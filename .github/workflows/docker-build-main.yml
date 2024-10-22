@@ -81,11 +81,6 @@ jobs:
         echo "gittag=${NEW_TAG}" >> $GITHUB_OUTPUT
         echo "tagmsg=${{env.RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
         echo "tagpatch=${VERSION_PATCH}" >> $GITHUB_OUTPUT
-  
-    - name: Create Git Tag
-      run: |
-        git tag -a "${{steps.tag-selector.outputs.gittag}}" -m "${{steps.tag-selector.outputs.tagmsg}}"
-        git push origin "${{steps.tag-selector.outputs.gittag}}"
     outputs: 
       TAGNAME: ${{steps.tag-selector.outputs.gittag}}
       TAGMESSAGE: ${{steps.tag-selector.outputs.tagmsg}}
