@@ -71,6 +71,7 @@ jobs:
         MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+' | grep -oE '[0-9]+')
         VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
         VERSION_PATCH=$((VERSION_PATCH + 1))
+        env | sort
         # Construct the new tag
         NEW_TAG="${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
         echo "gittag=${NEW_TAG}" >> $GITHUB_OUTPUT
@@ -86,7 +87,7 @@ jobs:
       id: setversion
       run: | 
         gh variable list --env test 
-        gh variable set UGM_BUILD_VERSION --env test --body "${{steps.tag-selector.outputs.tagversion}}"
+        gh variable set UGM_BUILD_VERSION --env test --body "1.1.1"
     outputs: 
       TAGNAME: ${{steps.tag-selector.outputs.gittag}}
       TAGMESSAGE: ${{steps.tag-selector.outputs.tagmsg}}
