@@ -90,7 +90,7 @@ jobs:
     outputs: 
       TAGNAME: ${{steps.tag-selector.outputs.gittag}}
       TAGMESSAGE: ${{steps.tag-selector.outputs.tagmsg}}
-      TAGPATCH: ${{steps.tag-selector.outputs.tagversion}} 
+      TAGPATCH: ${{steps.tag-selector.outputs.tagversion}}
 
   build:
     runs-on: ubuntu-latest
