@@ -83,6 +83,8 @@ jobs:
         echo "tagpatch=${VERSION_PATCH}" >> $GITHUB_OUTPUT
     - name: Create Git Tag
       run: |
+        git config user.name "GitHub Actions 1"
+        git config user.email "github-actions@users.noreply.github.com"
         git tag -a "${{steps.tag-selector.outputs.gittag}}" -m "${{steps.tag-selector.outputs.tagmsg}}"
         git push origin "${{steps.tag-selector.outputs.gittag}}"
     outputs: 
@@ -103,7 +105,7 @@ jobs:
         TAGNAME: ${{needs.GenerateTag.outputs.TAGNAME}}
         TAGMESSAGE: ${{needs.GenerateTag.outputs.TAGMESSAGE}}
       run: |
-        git config user.name "GitHub Actions"
+        git config user.name "GitHub Actions 2"
         git config user.email "github-actions@users.noreply.github.com"
         git tag ${{env.TAGNAME}} -m "${{env.TAGMESSAGE}}"
         git push origin ${{env.TAGNAME}}
