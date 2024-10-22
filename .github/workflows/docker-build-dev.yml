@@ -37,7 +37,7 @@ env:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  setup:
+  Setup:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -75,7 +75,6 @@ jobs:
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         xUGM_BUILD_VERSION=$($MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH)
         xUGM_NEW_TAG="${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}"
-
         # echo "gittag=${UGM_NEW_TAG}" >> $GITHUB_OUTPUT
         # echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
         # echo "tagversion=$UGM_BUILD_VERSION" >> $GITHUB_OUTPUT
@@ -96,6 +95,7 @@ jobs:
       TAGVERSION: ${{steps.tag-selector.outputs.tagversion}}
 
   build:
+    needs: [Setup,GenerateTag]
     runs-on: ubuntu-latest
     environment: dev
     steps:
