@@ -30,6 +30,10 @@ env:
   UGM_BUILD_VERSION: ${{vars.UGM_BUILD_VERSION}}
   UGM_BUILD_REVISION: ${{vars.UGM_BUILD_REVISION}}
 
+  RELEASE_PREFIX: API_v
+  RELEASE_MESSAGE: Test
+  RELEASE_VERSION: ${{vars.UGM_BUILD_VERSION}}
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   setup:
@@ -47,6 +51,62 @@ jobs:
         echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
         env | sort
+  GenerateTag:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: '0'
+
+    - name: Get current date
+      id: date-selector
+      run: echo "date=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
+
+    - name: Generate Next Git Tag
+      id: tag-selector
+      run: |
+        # Extract the latest patch version for the given major.minor version
+        VERSION_PATCH=$(git tag --list "${{env.RELEASE_PREFIX}}${{env.RELEASE_VERSION%.*}}.*" --sort=-version:refname | head -n 1 | grep -oE '[0-9]+$')
+        if [ -z "$VERSION_PATCH" ]; then
+          VERSION_PATCH=0
+        else
+          VERSION_PATCH=$((VERSION_PATCH + 1))
+        fi
+        # Construct the new tag
+        NEW_TAG="${{env.RELEASE_PREFIX}}${{env.RELEASE_VERSION%.*}}.${VERSION_PATCH}"
+        echo "gittag=${NEW_TAG}" >> $GITHUB_OUTPUT
+        echo "tagmsg=${{env.RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
+        echo "tagpatch=${VERSION_PATCH}" >> $GITHUB_OUTPUT
+    outputs: 
+      TAGNAME: ${{steps.tag-selector.outputs.gittag}}
+      TAGMESSAGE: ${{steps.tag-selector.outputs.tagmsg}}
+      TAGPATCH: ${{steps.tag-selector.outputs.tagpatch}}
+  PushTag:
+    needs: [GenerateTag]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+          fetch-depth: '1'   
+    - name: Push Git Tag
+      id: settag
+      env:
+        TAGNAME: ${{needs.GenerateTag.outputs.TAGNAME}}
+        TAGMESSAGE: ${{needs.GenerateTag.outputs.TAGMESSAGE}}
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        git tag ${{env.TAGNAME}} -m "${{env.TAGMESSAGE}}"
+        git push origin ${{env.TAGNAME}}
+    - name: Set repository patch variable
+      id: setpatch
+      env:
+        TAGPATCH: ${{needs.GenerateTag.outputs.TAGPATCH}}
+      run: | 
+        gh variable set VERSION_PATCH --body "${{env.TAGPATCH}}"
+        gh variable list
   build:
     runs-on: ubuntu-latest
     environment: test
