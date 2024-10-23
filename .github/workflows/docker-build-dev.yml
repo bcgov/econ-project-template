@@ -18,7 +18,9 @@ on:
       - 'SECURITY.md'
 
 env:
-  TARGET_ENV: dev 
+  TARGET_ENV: dev
+  GH_TOKEN: ${{secrets.GH_API_TOKEN}}
+  GITHUB_TOKEN: ${{secrets.GH_API_TOKEN}}
   OC_CLUSTER: ${{ vars.OPENSHIFT_CLUSTER }}
   OC_REGISTRY: ${{ vars.OPENSHIFT_REGISTRY }}
   OC_AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
@@ -30,9 +32,12 @@ env:
   UGM_BUILD_VERSION: ${{vars.UGM_BUILD_VERSION}}
   UGM_BUILD_REVISION: ${{vars.UGM_BUILD_REVISION}}
 
+  UGM_RELEASE_PREFIX: API_v
+  UGM_RELEASE_MESSAGE: "Development deployment"
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  setup:
+  Setup:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -47,7 +52,47 @@ jobs:
         echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
         env | sort
-  build:
+  GenerateTag:
+    needs: [Setup]
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+          fetch-depth: '0'
+    - name: Get current date
+      id: date-selector
+      run: echo "date=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
+    - name: Generate Next Git Tag
+      id: tag-selector
+      run: |
+        # Extract the major.minor.patch version parts using grep
+        MAJOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+')
+        MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+')
+        VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
+        # Increment version elements
+        echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
+        VERSION_PATCH=$((VERSION_PATCH + 1))
+        echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
+        # Prepare tags
+        echo "gittag=${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}" >> $GITHUB_OUTPUT
+        echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
+        echo "tagversion=$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH" >> $GITHUB_OUTPUT
+    - name: Create Git Tag
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        git tag -a "${{steps.tag-selector.outputs.gittag}}" -m "${{steps.tag-selector.outputs.tagmsg}}"
+        git push origin "${{steps.tag-selector.outputs.gittag}}"
+    - name: Set repository version variable
+      id: setversion
+      run: | 
+        gh variable list --env ${{env.TARGET_ENV}}
+        gh variable set UGM_BUILD_VERSION --env ${{env.TARGET_ENV}} --body "${{steps.tag-selector.outputs.tagversion}}"
+        gh variable list --env ${{env.TARGET_ENV}}
+  Build:
+    needs: [Setup,GenerateTag]
     runs-on: ubuntu-latest
     environment: dev
     steps:
