@@ -76,7 +76,7 @@ jobs:
         VERSION_PATCH=$((VERSION_PATCH + 1))
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         # Prepare tags
-        echo "gittag=(echo "${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}") >> $GITHUB_OUTPUT
+        echo "gittag=${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}" >> $GITHUB_OUTPUT
         echo "tagmsg=${{env.UGM_RELEASE_MESSAGE}} ${{steps.date-selector.outputs.date}}" >> $GITHUB_OUTPUT
         echo "tagversion=$(echo "$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH") >> $GITHUB_OUTPUT
     - name: Create Git Tag
