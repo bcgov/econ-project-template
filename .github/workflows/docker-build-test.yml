@@ -36,7 +36,7 @@ env:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  setup:
+  Setup:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -90,6 +90,9 @@ jobs:
         gh variable list --env ${{env.TARGET_ENV}}
         gh variable set UGM_BUILD_VERSION --env ${{env.TARGET_ENV}} --body "${{steps.tag-selector.outputs.tagversion}}"
         gh variable list --env ${{env.TARGET_ENV}}
+        # Update lower environment version elements
+        gh variable set UGM_BUILD_VERSION --env dev --body "${{steps.tag-selector.outputs.tagversion}}"
+        gh variable list --env dev
   Build:
     needs: [Setup,GenerateTag]
     runs-on: ubuntu-latest
