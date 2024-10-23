@@ -90,7 +90,9 @@ jobs:
         gh variable list --env ${{env.TARGET_ENV}}
         gh variable set UGM_BUILD_VERSION --env ${{env.TARGET_ENV}} --body "${{steps.tag-selector.outputs.tagversion}}"
         gh variable list --env ${{env.TARGET_ENV}}
-  Build:
+        # Update lower environment version elements
+        gh variable set UGM_BUILD_VERSION --env dev --body "${{steps.tag-selector.outputs.tagversion}}"
+        gh variable list --env dev
     needs: [Setup,GenerateTag]
     runs-on: ubuntu-latest
     environment: test
