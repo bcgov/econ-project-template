@@ -47,7 +47,7 @@ jobs:
     - name: Get variables
       run: |
         echo "target=$TARGET_ENV"
-        echo "base=${{env.TARGET_ENV}}"
+        echo "base=$GITHUB_REF_NAME"
         echo "Environment: $TARGET_ENV OC_TARGET_PROJECT=$OC_TARGET_PROJECT"
         echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
