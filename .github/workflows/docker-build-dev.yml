@@ -41,7 +41,7 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
-    environment: dev
+    environment: ${{env.TARGET_ENV}}
     steps:
     # Runs commands using the runners shell
     - name: Get variables
@@ -51,11 +51,12 @@ jobs:
         echo "Environment: $TARGET_ENV OC_TARGET_PROJECT=$OC_TARGET_PROJECT"
         echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
+        gh variable list --env ${{env.TARGET_ENV}}
         env | sort
   GenerateTag:
     needs: [Setup]
     runs-on: ubuntu-latest
-    environment: dev
+    environment: ${{env.TARGET_ENV}}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -71,7 +72,7 @@ jobs:
         MAJOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+')
         MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+')
         VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
-        # Increment Version
+        # Increment version elements
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         VERSION_PATCH=$((VERSION_PATCH + 1))
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
@@ -88,13 +89,13 @@ jobs:
     - name: Set repository version variable
       id: setversion
       run: | 
-        gh variable list --env dev
-        gh variable set UGM_BUILD_VERSION --env dev --body "${{steps.tag-selector.outputs.tagversion}}"
-        gh variable list --env dev
+        gh variable list --env ${{env.TARGET_ENV}}
+        gh variable set UGM_BUILD_VERSION --env ${{env.TARGET_ENV}} --body "${{steps.tag-selector.outputs.tagversion}}"
+        gh variable list --env ${{env.TARGET_ENV}}
   Build:
     needs: [Setup,GenerateTag]
     runs-on: ubuntu-latest
-    environment: dev
+    environment: ${{env.TARGET_ENV}}
     steps:
     - uses: actions/checkout@v4
     - name: Build dotnetapp docker images
