@@ -18,7 +18,7 @@ on:
       - 'SECURITY.md'
 
 env:
-  TARGET_ENV: $GITHUB_REF_NAME 
+  TARGET_ENV: dev
   GH_TOKEN: ${{secrets.GH_API_TOKEN}}
   GITHUB_TOKEN: ${{secrets.GH_API_TOKEN}}
   OC_CLUSTER: ${{ vars.OPENSHIFT_CLUSTER }}
@@ -41,17 +41,16 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
-    environment: $GITHUB_REF_NAME
+    environment: dev
     steps:
     # Runs commands using the runners shell
     - name: Get variables
       run: |
         echo "target=$TARGET_ENV"
-        echo "base=$GITHUB_REF_NAME"
+        echo "base=${{env.TARGET_ENV}}"
         echo "Environment: $TARGET_ENV OC_TARGET_PROJECT=$OC_TARGET_PROJECT"
         echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
-        gh variable list --env $GITHUB_REF_NAME
         env | sort
   GenerateTag:
     needs: [Setup]
