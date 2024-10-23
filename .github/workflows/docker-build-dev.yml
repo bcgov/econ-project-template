@@ -20,7 +20,6 @@ on:
 env:
   TARGET_ENV: dev
   GH_TOKEN: ${{secrets.GH_API_TOKEN}}
-  GITHUB_TOKEN: ${{secrets.GH_API_TOKEN}}
   OC_CLUSTER: ${{ vars.OPENSHIFT_CLUSTER }}
   OC_REGISTRY: ${{ vars.OPENSHIFT_REGISTRY }}
   OC_AUTH_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
