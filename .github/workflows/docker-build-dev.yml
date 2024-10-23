@@ -33,7 +33,7 @@ env:
   UGM_BUILD_REVISION: ${{vars.UGM_BUILD_REVISION}}
 
   UGM_RELEASE_PREFIX: API_v
-  UGM_RELEASE_MESSAGE: Test
+  UGM_RELEASE_MESSAGE: "Development deployment"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -41,7 +41,7 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
-    environment: ${{env.TARGET_ENV}}
+    environment: ${{TARGET_ENV}}
     steps:
     # Runs commands using the runners shell
     - name: Get variables
@@ -51,12 +51,12 @@ jobs:
         echo "Environment: $TARGET_ENV OC_TARGET_PROJECT=$OC_TARGET_PROJECT"
         echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
-        gh variable list --env ${{env.TARGET_ENV}}
+        gh variable list --env ${{TARGET_ENV}}
         env | sort
   GenerateTag:
     needs: [Setup]
     runs-on: ubuntu-latest
-    environment: ${{env.TARGET_ENV}}
+    environment: dev
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -95,7 +95,7 @@ jobs:
   Build:
     needs: [Setup,GenerateTag]
     runs-on: ubuntu-latest
-    environment: ${{env.TARGET_ENV}}
+    environment: dev
     steps:
     - uses: actions/checkout@v4
     - name: Build dotnetapp docker images
