@@ -69,11 +69,8 @@ jobs:
       run: echo "date=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
     - name: List merged branches
       run: |
-        git fetch --all
-        MERGED_BRANCHES=$(git branch -r --merged ${{env.TARGET_ENV}} | tail -n 1 | sed 's/origin\///')
-        echo "Merged branches: $MERGED_BRANCHES"
-        echo "MERGED_BRANCHES=$MERGED_BRANCHES" >> $GITHUB_ENV
-        env | sort
+        echo "MERGED_BRANCH=$(gitgit log --merges --pretty=format:"%s" -1)"  >> $GITHUB_OUTPUT
+        echo "Merged branch: $MERGED_BRANCH"
     - name: Set repository version variable
       id: setversion
       run: | 

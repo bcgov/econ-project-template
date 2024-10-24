@@ -69,9 +69,8 @@ jobs:
       run: echo "date=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
     - name: List merged branches
       run: |
-        git fetch --all
-        MERGED_BRANCHES=$(git branch -r --merged ${{env.TARGET_ENV}} | tail -n 1 | sed 's/origin\///')
-        echo "Merged branches: $MERGED_BRANCHES"
+        MERGED_BRANCH=$(gitgit log --merges --pretty=format:"%s" -1)
+        echo "Merged branch: $MERGED_BRANCH"
   GenerateTag:
     needs: [Setup]
     runs-on: ubuntu-latest
