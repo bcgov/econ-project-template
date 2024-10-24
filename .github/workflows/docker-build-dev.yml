@@ -51,7 +51,7 @@ jobs:
         echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
         env | sort
-  GenerateTag:
+  GetBranch:
     needs: [Setup]
     runs-on: ubuntu-latest
     environment: dev
@@ -67,11 +67,11 @@ jobs:
     - name: Get current date
       id: date-selector
       run: echo "date=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
-    - name: List merged hotfix branches
+    - name: List merged branches
       run: |
         git fetch --all
-        MERGED_BRANCHES=$(git branch -r --merged main | grep 'origin/hotfix/' | sed 's/origin\///')
-        echo "Merged hotfix branches: $MERGED_BRANCHES"
+        MERGED_BRANCHES=$(git branch -r --merged ${{env.TARGET_ENV}} | sed 's/origin\///')
+        echo "Merged branches: $MERGED_BRANCHES"
         echo "MERGED_BRANCHES=$MERGED_BRANCHES" >> $GITHUB_ENV
     - name: Set repository version variable
       id: setversion
@@ -81,7 +81,7 @@ jobs:
         gh variable list --env ${{env.TARGET_ENV}}
         echo "buildArgs UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}"
   Build:
-    needs: [Setup,GenerateTag]
+    needs: [Setup,GetBranch]
     runs-on: ubuntu-latest
     environment: dev
     steps:
