@@ -1,0 +1,37 @@
+name: Hotfix - Create PR into main from selected branch or tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        default: 'main'
+        required: true
+        type: string
+      pr_title:
+        description: 'Title for the pull request'
+        required: true
+        type: string
+      pr_body:
+        description: 'Body for the pull request'
+        required: false
+        type: string
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create pull request
+        id: create_pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          source: ${{ github.ref }}
+          destination: main
+          title: ${{ github.event.inputs.pr_title }}
+          body: ${{ github.event.inputs.pr_body }}
+          branch: hotfix-pr-${{ github.ref }}
