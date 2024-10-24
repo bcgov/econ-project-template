@@ -70,7 +70,7 @@ jobs:
     - name: List merged branches
       id: get-branch
       run: |
-        echo "MERGED_BRANCH=$(gitgit log --merges --pretty=format:"%s" -1)"  >> $GITHUB_OUTPUT
+        echo "MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1)"  >> $GITHUB_OUTPUT
         MERGED_BRANCH=$(gitgit log --merges --pretty=format:"%s" -1)
         echo "Merged branch: $MERGED_BRANCH"
     - name: Set repository version variable
