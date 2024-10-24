@@ -60,6 +60,10 @@ jobs:
       uses: actions/checkout@v4
       with:
           fetch-depth: '0'
+    - name: Get short commitId
+      id: get-commit
+      run:  |
+        echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
     - name: Get current date
       id: date-selector
       run: echo "date=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
@@ -88,11 +92,13 @@ jobs:
       id: setversion
       run: | 
         gh variable list --env ${{env.TARGET_ENV}}
+        gh variable set UGM_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{steps.get-commit.outputs.sha_short}}"
         gh variable set UGM_BUILD_VERSION --env ${{env.TARGET_ENV}} --body "${{steps.tag-selector.outputs.tagversion}}"
         gh variable list --env ${{env.TARGET_ENV}}
         # Update lower environment version elements
         gh variable set UGM_BUILD_VERSION --env dev --body "${{steps.tag-selector.outputs.tagversion}}"
         gh variable list --env dev
+        echo "buildArgs --env ${{env.TARGET_ENV}} UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}"
   Build:
     needs: [Setup,GenerateTag]
     runs-on: ubuntu-latest
