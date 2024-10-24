@@ -68,8 +68,10 @@ jobs:
       id: date-selector
       run: echo "date=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
     - name: List merged branches
+      id: get-branch
       run: |
         echo "MERGED_BRANCH=$(gitgit log --merges --pretty=format:"%s" -1)"  >> $GITHUB_OUTPUT
+        MERGED_BRANCH=$(gitgit log --merges --pretty=format:"%s" -1)
         echo "Merged branch: $MERGED_BRANCH"
     - name: Set repository version variable
       id: setversion
@@ -77,7 +79,7 @@ jobs:
         gh variable list --env ${{env.TARGET_ENV}}
         gh variable set UGM_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{steps.get-commit.outputs.sha_short}}"
         gh variable list --env ${{env.TARGET_ENV}}
-        echo "buildArgs UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}"
+        echo "buildArgs UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}, Merged Branch: ${{steps.get-branch.outputs.MERGED_BRANCH}}"
   Build:
     needs: [Setup,BranchInfo]
     runs-on: ubuntu-latest
