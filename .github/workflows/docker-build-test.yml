@@ -70,7 +70,7 @@ jobs:
     - name: List merged branches
       run: |
         git fetch --all
-        MERGED_BRANCHES=$(git branch -r --merged ${{env.TARGET_ENV}} | sed 's/origin\///')
+        MERGED_BRANCHES=$(git branch -r --merged ${{env.TARGET_ENV}} | tail -n 1 | sed 's/origin\///')
         echo "Merged branches: $MERGED_BRANCHES"
   GenerateTag:
     needs: [Setup]
