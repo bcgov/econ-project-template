@@ -72,7 +72,6 @@ jobs:
         git fetch --all
         MERGED_BRANCHES=$(git branch -r --merged ${{env.TARGET_ENV}} | sed 's/origin\///')
         echo "Merged branches: $MERGED_BRANCHES"
-        echo "MERGED_BRANCHES=$MERGED_BRANCHES" >> $GITHUB_ENV
   GenerateTag:
     needs: [Setup]
     runs-on: ubuntu-latest
