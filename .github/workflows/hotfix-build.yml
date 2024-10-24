@@ -1,22 +1,19 @@
-name: Hotfix - Create PR into main from selected branch or tag
+# Create PR into main from selected branch or tag
+name: Patch - Hotfix create PR
 
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment'
-        default: 'main'
+        description: 'Hotfix - compare: branch'
+        default: 'dev'
         required: true
         type: string
       pr_title:
-        description: 'Title for the pull request'
+        description: 'Hotfix - Title for the pull request'
+        default: 'Hotfix to Main Release: yyyy-mm-dd'
         required: true
         type: string
-      pr_body:
-        description: 'Body for the pull request'
-        required: false
-        type: string
-
 jobs:
   create-pr:
     runs-on: ubuntu-latest
