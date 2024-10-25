@@ -87,16 +87,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-          fetch-depth: '0'   
+          fetch-depth: '0'
     - name: Set repository version variables
       id: setversion
-      run: | 
+      run: |
         gh variable list --env ${{env.TARGET_ENV}}
         gh variable set UGM_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{needs.Branch.outputs.SHA_SHORT}}}"
         gh variable list --env ${{env.TARGET_ENV}}
         echo "buildArgs --env ${{env.TARGET_ENV}} UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}, Merged Branch: ${{needs.Branch.outputs.MERGED_BRANCH}}"
   Build:
-    needs: [Setup,Branch]
+    needs: [Setup,Branch,PushVariables]
     runs-on: ubuntu-latest
     environment: dev
     steps:
@@ -117,7 +117,7 @@ jobs:
       run: |
         echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin $JFROG_SERVICE
     - name: Push application images to Artifactory container registry
-      run:  | 
+      run:  |
         docker tag dotnetapp $JFROG_SERVICE/$JFROG_REPO_PATH/dotnetapp
         docker push $JFROG_SERVICE/$JFROG_REPO_PATH/dotnetapp
         docker tag aspnetapp $JFROG_SERVICE/$JFROG_REPO_PATH/aspnetapp
@@ -135,7 +135,7 @@ jobs:
         oc registry login
         docker login -u unused -p $(oc whoami -t) $OC_REGISTRY
     - name: Push application images to OpenShift container registry
-      run:  | 
+      run:  |
         docker tag dotnetapp $OC_REGISTRY/$OC_TARGET_PROJECT/dotnetapp
         docker push $OC_REGISTRY/$OC_TARGET_PROJECT/dotnetapp
         docker tag aspnetapp $OC_REGISTRY/$OC_TARGET_PROJECT/aspnetapp
