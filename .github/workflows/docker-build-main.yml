@@ -37,7 +37,7 @@ env:
 jobs:
   Setup:
     runs-on: ubuntu-latest
-    environment: test
+    environment: main
     steps:
     - name: Get variables
       run: |
@@ -55,7 +55,7 @@ jobs:
   Branch:
     needs: [Setup]
     runs-on: ubuntu-latest
-    environment: dev
+    environment: main
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -121,7 +121,7 @@ jobs:
   PushVariables:
     needs: [Setup,Branch,GenerateTag]
     runs-on: ubuntu-latest
-    environment: test
+    environment: main
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
