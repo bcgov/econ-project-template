@@ -70,9 +70,13 @@ jobs:
     - name: List merged branch
       id: get-branch
       run: |
-        echo "MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')"  >> $GITHUB_OUTPUT
         MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
-        echo "Merged branch: $MERGED_BRANCH"
+        if [ -z "$MERGED_BRANCH" ]; then
+          echo "direct push no PR"
+        else
+          echo "Merged branch: $MERGED_BRANCH"
+        fi
+        echo "MERGED_BRANCH=$MERGED_BRANCH" >> $GITHUB_OUTPUT
     - name: Set repository version variables
       id: setversion
       run: | 
