@@ -131,9 +131,9 @@ jobs:
       id: set_version
       run: |
         gh variable list --env ${{env.TARGET_ENV}}
+        echo "..."
         gh variable set UGM_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{needs.Branch.outputs.SHA_SHORT}}"
         gh variable set UGM_BUILD_VERSION --env ${{env.TARGET_ENV}} --body "${{needs.GenerateTag.outputs.TAGVERSION}}"
-        echo "..."
         gh variable list --env ${{env.TARGET_ENV}}
         echo "..."
         echo "buildArgs --env ${{env.TARGET_ENV}} UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}, Merged Branch: ${{needs.Branch.outputs.MERGED_BRANCH}}"
