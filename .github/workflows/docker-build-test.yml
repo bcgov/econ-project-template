@@ -70,8 +70,8 @@ jobs:
       run: |
         MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
         if [ -z "$MERGED_BRANCH" ]; then
-          echo "direct push not a pull request from bcgov/branch"
-          echo "MERGED_BRANCH='push'" >> $GITHUB_OUTPUT
+          echo "Direct push no pull request from bcgov/branch"
+          echo "MERGED_BRANCH=push" >> $GITHUB_OUTPUT
         else
           echo "Merged branch: $MERGED_BRANCH"
           echo "MERGED_BRANCH=$MERGED_BRANCH" >> $GITHUB_OUTPUT
@@ -133,7 +133,9 @@ jobs:
       id: set_version
       run: |
         gh variable set UGM_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{needs.Branch.outputs.SHA_SHORT}}"
+        echo "UGM_BUILD_REVISION=${{needs.Branch.outputs.SHA_SHORT}}" >> $GITHUB_ENV
         gh variable set UGM_BUILD_VERSION --env ${{env.TARGET_ENV}} --body "${{needs.GenerateTag.outputs.TAGVERSION}}"
+        echo "UGM_BUILD_VERSION=${{needs.GenerateTag.outputs.TAGVERSION}}" >> $GITHUB_ENV
         gh variable set UGM_BUILD_VERSION --env dev --body "${{needs.GenerateTag.outputs.TAGVERSION}}"
         gh variable set UGM_BUILD_VERSION --env main --body "${{needs.GenerateTag.outputs.TAGVERSION}}"
     - name: Get repository version variables
