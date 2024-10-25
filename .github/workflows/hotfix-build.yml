@@ -1,5 +1,5 @@
 # Create PR into main from selected branch or tag
-name: Patch - Hotfix create PR
+name: Patch - Hotfix create PR into test/main
 
 on:
   workflow_dispatch:

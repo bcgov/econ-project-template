@@ -135,12 +135,14 @@ jobs:
         gh variable list --env ${{env.TARGET_ENV}}
         gh variable set UGM_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{needs.Branch.outputs.SHA_SHORT}}"
         gh variable set UGM_BUILD_VERSION --env ${{env.TARGET_ENV}} --body "${{needs.GenerateTag.outputs.TAGVERSION}}"
+        echo "..."
         gh variable list --env ${{env.TARGET_ENV}}
         # Update other environments version elements
         gh variable set UGM_BUILD_VERSION --env dev --body "${{needs.GenerateTag.outputs.TAGVERSION}}"
         gh variable get UGM_BUILD_VERSION --env dev
         gh variable set UGM_BUILD_VERSION --env main --body "${{needs.GenerateTag.outputs.TAGVERSION}}"
         gh variable get UGM_BUILD_VERSION --env main
+        echo "..."
         echo "buildArgs --env ${{env.TARGET_ENV}} UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}, Merged Branch: ${{needs.Branch.outputs.MERGED_BRANCH}}"
   Build:
     needs: [Setup,Branch,GenerateTag,PushVariables]
