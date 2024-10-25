@@ -92,7 +92,8 @@ jobs:
     - name: Set repository version variables
       id: set_version
       run: |
-        # gh variable set UGM_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{needs.Branch.outputs.SHA_SHORT}}"
+        gh variable set UGM_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{needs.Branch.outputs.SHA_SHORT}}"
+        echo "UGM_BUILD_REVISION=${{needs.Branch.outputs.SHA_SHORT}}" >> $GITHUB_ENV
     - name: Get repository version variables
       id: get_version
       run: |
