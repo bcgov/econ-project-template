@@ -37,7 +37,7 @@ env:
 jobs:
   Setup:
     runs-on: ubuntu-latest
-    environment: test
+    environment: dev
     steps:
     - name: Get variables
       run: |
