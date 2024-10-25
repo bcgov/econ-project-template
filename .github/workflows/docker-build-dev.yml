@@ -51,7 +51,7 @@ jobs:
         echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
         env | sort
-  BranchInfo:
+  Branch:
     needs: [Setup]
     runs-on: ubuntu-latest
     environment: dev
@@ -67,22 +67,21 @@ jobs:
     - name: Get current date
       id: date-selector
       run: echo "date=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
-    - name: List merged branches
+    - name: List merged branch
+      id: get-branch
       run: |
-        git fetch --all
-        MERGED_BRANCHES=$(git branch -r --merged ${{env.TARGET_ENV}} | tail -n 1 | sed 's/origin\///')
-        echo "Merged branches: $MERGED_BRANCHES"
-        echo "MERGED_BRANCHES=$MERGED_BRANCHES" >> $GITHUB_ENV
-        env | sort
-    - name: Set repository version variable
+        echo "MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1)"  >> $GITHUB_OUTPUT
+        MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1)
+        echo "Merged branch: $MERGED_BRANCH"
+    - name: Set repository version variables
       id: setversion
       run: | 
         gh variable list --env ${{env.TARGET_ENV}}
         gh variable set UGM_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{steps.get-commit.outputs.sha_short}}"
         gh variable list --env ${{env.TARGET_ENV}}
-        echo "buildArgs UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}"
+        echo "buildArgs --env ${{env.TARGET_ENV}} UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}, Merged Branch: ${{steps.get-branch.outputs.MERGED_BRANCH}}"
   Build:
-    needs: [Setup,BranchInfo]
+    needs: [Setup,Branch]
     runs-on: ubuntu-latest
     environment: dev
     steps:
