@@ -72,7 +72,7 @@ jobs:
       run: |
         MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
         if [ -z "$MERGED_BRANCH" ]; then
-          echo "direct push no from bcgov/branch PR"
+          echo "direct push not a PR from bcgov/branch"
         else
           echo "Merged branch: $MERGED_BRANCH"
         fi

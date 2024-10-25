@@ -51,8 +51,34 @@ jobs:
         echo "Environment: $TARGET_ENV JFROG_REPO_PATH=$JFROG_REPO_PATH"
         echo "..."
         env | sort
-  GenerateTag:
+  Branch:
     needs: [Setup]
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+          fetch-depth: '0'
+    - name: Get short commitId
+      id: get-commit
+      run:  |
+        echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+    - name: Get current date
+      id: date-selector
+      run: echo "date=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
+    - name: List merged branch
+      id: get-branch
+      run: |
+        MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
+        if [ -z "$MERGED_BRANCH" ]; then
+          echo "direct push not a PR from bcgov/branch"
+        else
+        echo "Merged branch: $MERGED_BRANCH"
+        fi
+        echo "mergedbranch=$MERGED_BRANCH" >> $GITHUB_OUTPUT
+  GenerateTag:
+    needs: [Setup,Branch]
     runs-on: ubuntu-latest
     environment: main
     steps:
@@ -75,8 +101,9 @@ jobs:
         MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+')
         VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
         # Increment version elements
+        echo ${{steps.get-branch.outputs.mergedbranch}}
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
-        MINOR_VERSION=$((MINOR_VERSION + 1))
+        VERSION_PATCH=$((VERSION_PATCH + 1))
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         # Prepare tags
         echo "gittag=${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}" >> $GITHUB_OUTPUT
@@ -98,9 +125,9 @@ jobs:
         # Update lower environment version elements
         gh variable set UGM_BUILD_VERSION --env dev --body "${{steps.tag-selector.outputs.tagversion}}"
         gh variable list --env dev
-        echo "buildArgs --env ${{env.TARGET_ENV}} UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}"
+        echo "buildArgs --env ${{env.TARGET_ENV}} UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}, Merged Branch: ${{steps.get-branch.outputs.MERGED_BRANCH}}"
   Build:
-    needs: [Setup,GenerateTag]
+    needs: [Setup,Branch,GenerateTag]
     runs-on: ubuntu-latest
     environment: main
     steps:
