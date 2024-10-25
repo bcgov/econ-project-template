@@ -70,9 +70,13 @@ jobs:
     - name: List merged branch
       id: get-branch
       run: |
-        echo "MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1)"  >> $GITHUB_OUTPUT
-        MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1)
+        MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
+        if [ -z "$MERGED_BRANCH" ]; then
+          echo "direct push no from bcgov/branch PR"
+        else
         echo "Merged branch: $MERGED_BRANCH"
+        fi
+        echo "MERGED_BRANCH=$MERGED_BRANCH" >> $GITHUB_OUTPUT
   GenerateTag:
     needs: [Setup]
     runs-on: ubuntu-latest
