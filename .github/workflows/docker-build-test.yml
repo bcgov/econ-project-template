@@ -55,7 +55,7 @@ jobs:
   Branch:
     needs: [Setup]
     runs-on: ubuntu-latest
-    environment: dev
+    environment: test
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
