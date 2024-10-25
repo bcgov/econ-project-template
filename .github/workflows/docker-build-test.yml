@@ -70,8 +70,8 @@ jobs:
     - name: List merged branch
       id: get-branch
       run: |
-        echo "MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1)"  >> $GITHUB_OUTPUT
-        MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1)
+        echo "MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')"  >> $GITHUB_OUTPUT
+        MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
         echo "Merged branch: $MERGED_BRANCH"
   GenerateTag:
     needs: [Setup]
