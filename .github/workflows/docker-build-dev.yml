@@ -83,7 +83,11 @@ jobs:
     needs: [Setup,Branch]
     runs-on: ubuntu-latest
     environment: dev
-    steps:   
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+          fetch-depth: '0'   
     - name: Set repository version variables
       id: setversion
       run: | 
