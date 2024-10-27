@@ -99,9 +99,9 @@ jobs:
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         # Check the merged branch and set versions accordingly
         if [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == "test" ]]; then
-          echo "Using test versions"
+          echo "Test version tagged as stable release"
         elif [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == hotfix/* ]]; then
-          echo "Incrementing patch version for hotfix"
+          echo "Incrementing patch version for hotfix version tagged as stable release"
           VERSION_PATCH=$((VERSION_PATCH + 1))
         fi
         # Echo the updated version
@@ -116,9 +116,9 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "github-actions@users.noreply.github.com"
         if [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == "test" ]]; then
-          echo "Using test versions"
+          echo "Test version tagged as stable release"
         elif [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == hotfix/* ]]; then
-          echo "Push tag for hotfix"
+          echo "Push tag for hotfix as stable release"
           git tag -a "${{steps.tag_selector.outputs.TAGNAME}}" -m "${{steps.tag_selector.outputs.TAGMSG}}"
           git push origin "${{steps.tag_selector.outputs.TAGNAME}}"
         fi
