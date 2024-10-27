@@ -95,13 +95,18 @@ jobs:
         MAJOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+')
         MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+')
         VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
-        # Increment version elements
+        # Echo the current version
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
-        VERSION_PATCH=$((VERSION_PATCH + 1))
-        #
-        # If main patch is from test use test versions
-        # If main patch is from hotfix branch/tag increment patch
-        #
+        # Check the merged branch and set versions accordingly
+        if [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == "test" ]]; then
+          echo "Using test versions"
+          # Set test versions here
+          UNITY_BUILD_VERSION="test-version"
+        elif [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == hotfix/* ]]; then
+          echo "Incrementing patch version for hotfix"
+          VERSION_PATCH=$((VERSION_PATCH + 1))
+        fi
+        # Echo the updated version
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         # Prepare tags
         echo "TAGNAME=${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}" >> $GITHUB_OUTPUT
