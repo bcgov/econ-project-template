@@ -135,7 +135,7 @@ jobs:
       uses: actions/checkout@v4
       with:
           fetch-depth: '0'
-    - name: Set repository version variable
+    - name: Set repository version variables
       id: set_version
       run: |
         gh variable set UGM_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{needs.Branch.outputs.SHA_SHORT}}"
