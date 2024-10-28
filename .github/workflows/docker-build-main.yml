@@ -60,7 +60,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-          fetch-depth: '0'
+          fetch-depth: '1'
     - name: Get short commitId
       id: get_commit
       run:  |
@@ -87,7 +87,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-          fetch-depth: '0'
+          fetch-depth: '1'
     - name: Generate Next Git Tag
       id: tag_selector
       run: |
@@ -134,7 +134,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-          fetch-depth: '0'
+          fetch-depth: '1'
     - name: Set repository version variables
       id: set_version
       run: |
