@@ -16,7 +16,9 @@ on:
       - 'LICENSE'
       - 'README.md'
       - 'SECURITY.md'
-
+  # Allow manual workflow triggering
+  workflow_dispatch:
+# Workflow dependencies
 env:
   TARGET_ENV: dev
   GH_TOKEN: ${{secrets.GH_API_TOKEN}}
@@ -60,7 +62,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-          fetch-depth: '0'
+          fetch-depth: '1'
     - name: Get short commitId
       id: get_commit
       run:  |
@@ -87,7 +89,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-          fetch-depth: '0'
+          fetch-depth: '1'
     - name: Set repository version variables
       id: set_version
       run: |
