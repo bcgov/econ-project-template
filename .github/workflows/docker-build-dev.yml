@@ -69,27 +69,11 @@ jobs:
     - name: List merged branch
       id: get_branch
       run: |
-        # Get the latest merge commit message
-        LATEST_MERGE_COMMIT=$(git log --merges --pretty=format:"%s")
         git log
-        git log | grep -oE 'from bcgov/[^ ]+'
-
-        # Print the latest merge commit message for debugging
-        echo "Latest merge commit message: $LATEST_MERGE_COMMIT"
-
-        # Check if the latest merge commit matches "Merge pull request * from bcgov/*"
-        if echo "$LATEST_MERGE_COMMIT" | grep -qE 'Merge pull request #[0-9]+ from bcgov/[^ ]+'; then
-          # Extract the branch name
-          MERGED_BRANCH=$(echo "$LATEST_MERGE_COMMIT" | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
-          echo "Merged branch: $MERGED_BRANCH"
-          echo "MERGED_BRANCH=$MERGED_BRANCH" >> $GITHUB_OUTPUT
-        else
-          echo "Direct push into dev branch"
-          echo "MERGED_BRANCH=push" >> $GITHUB_OUTPUT
-        fi
-        MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
+        git log -1 | grep -oE 'from bcgov/[^ ]+'
+        MERGED_BRANCH=$(git log -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
         if [ -z "$MERGED_BRANCH" ]; then
-          echo "Direct push no pull request from bcgov/branch"
+          echo "Direct push into --env ${{env.TARGET_ENV}}"
           echo "MERGED_BRANCH=push" >> $GITHUB_OUTPUT
         else
           echo "Merged branch: $MERGED_BRANCH"
