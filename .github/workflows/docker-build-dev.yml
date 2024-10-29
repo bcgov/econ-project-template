@@ -62,7 +62,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-          fetch-depth: '2'
+          fetch-depth: '1'
     - name: Get short commitId
       id: get_commit
       run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
