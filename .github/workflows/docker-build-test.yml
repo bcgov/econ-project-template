@@ -34,7 +34,7 @@ env:
   UGM_BUILD_REVISION: ${{vars.UGM_BUILD_REVISION}}
 
   UGM_RELEASE_PREFIX: API_v
-  UGM_RELEASE_MESSAGE: "QA Test and UAT Deployment"
+  UGM_RELEASE_MESSAGE: "Test Deployment"
 
 jobs:
   Setup:
@@ -103,19 +103,8 @@ jobs:
         VERSION_PATCH=0
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         # Prepare tags
-        echo "TAGNAME=${{env.UGM_RELEASE_PREFIX}}${MAJOR_VERSION}.${MINOR_VERSION}.${VERSION_PATCH}" >> $GITHUB_OUTPUT
-        echo "TAGMSG=${{env.UGM_RELEASE_MESSAGE}} ${{needs.Setup.outputs.DATE}}" >> $GITHUB_OUTPUT
         echo "TAGVERSION=$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH" >> $GITHUB_OUTPUT
-    - name: Create Git Tag
-      id: tag_create
-      run: |
-        git config user.name "GitHub Actions"
-        git config user.email "github-actions@users.noreply.github.com"
-        git tag -a "${{steps.tag_selector.outputs.TAGNAME}}" -m "${{steps.tag_selector.outputs.TAGMSG}}"
-        git push origin "${{steps.tag_selector.outputs.TAGNAME}}"
     outputs:
-      TAGNAME: ${{steps.tag_selector.outputs.TAGNAME}}
-      TAGMSG: ${{steps.tag_selector.outputs.TAGMSG}}
       TAGVERSION: ${{steps.tag_selector.outputs.TAGVERSION}}
   PushVariables:
     needs: [Setup,Branch,GenerateTag]
