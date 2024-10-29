@@ -70,8 +70,10 @@ jobs:
       id: get_branch
       run: |
         # Get the latest merge commit message
-        LATEST_MERGE_COMMIT=$(git log --merges --pretty=format:"%s" -1)
+        LATEST_MERGE_COMMIT=$(git log --merges --pretty=format:"%s")
         git log
+        git log --merges
+
         # Print the latest merge commit message for debugging
         echo "Latest merge commit message: $LATEST_MERGE_COMMIT"
 
@@ -84,6 +86,14 @@ jobs:
         else
           echo "Direct push into dev branch"
           echo "MERGED_BRANCH=push" >> $GITHUB_OUTPUT
+        fi
+        MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
+        if [ -z "$MERGED_BRANCH" ]; then
+          echo "Direct push no pull request from bcgov/branch"
+          echo "MERGED_BRANCH=push" >> $GITHUB_OUTPUT
+        else
+          echo "Merged branch: $MERGED_BRANCH"
+          echo "MERGED_BRANCH=$MERGED_BRANCH" >> $GITHUB_OUTPUT
         fi
     outputs:
       SHA_SHORT: ${{steps.get_commit.outputs.SHA_SHORT}}
