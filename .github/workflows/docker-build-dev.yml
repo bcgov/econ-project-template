@@ -69,13 +69,18 @@ jobs:
     - name: List merged branch
       id: get_branch
       run: |
-        MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'Merge pull request #[0-9]+ from bcgov/[^ ]+')
-        if [ -z "$MERGED_BRANCH" ]; then
-          echo "Direct push into dev branch"
-          echo "MERGED_BRANCH=push" >> $GITHUB_OUTPUT
-        else
+        # Get the latest merge commit message
+        LATEST_MERGE_COMMIT=$(git log --merges --pretty=format:"%s" -1)
+
+        # Check if the latest merge commit matches "Merge pull request * from bcgov/*"
+        if echo "$LATEST_MERGE_COMMIT" | grep -qE 'Merge pull request #[0-9]+ from bcgov/[^ ]+'; then
+          # Extract the branch name
+          MERGED_BRANCH=$(echo "$LATEST_MERGE_COMMIT" | grep -oE 'Merge pull request #[0-9]+ from bcgov/[^ ]+' | sed 's/Merge pull request #[0-9]\+ from bcgov\///')
           echo "Merged branch: $MERGED_BRANCH"
           echo "MERGED_BRANCH=$MERGED_BRANCH" >> $GITHUB_OUTPUT
+        else
+          echo "Direct push into dev branch"
+          echo "MERGED_BRANCH=push" >> $GITHUB_OUTPUT
         fi
     outputs:
       SHA_SHORT: ${{steps.get_commit.outputs.SHA_SHORT}}
