@@ -106,6 +106,9 @@ jobs:
           echo "Incrementing patch version for hotfix release"
           VERSION_PATCH=$((VERSION_PATCH + 1))
           UGM_DEPLOY_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
+        else
+          echo "WARNING: Compare branch pattern != test|hotfix unable to process build! "
+          exit 1
         fi
         echo "Main branch tagged as stable release: $UGM_DEPLOY_VERSION"
         echo "TAGNAME=${{env.UGM_RELEASE_PREFIX}}$UGM_DEPLOY_VERSION" >> $GITHUB_OUTPUT
