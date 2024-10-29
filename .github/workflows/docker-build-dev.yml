@@ -69,8 +69,7 @@ jobs:
     - name: List merged branch
       id: get_branch
       run: |
-        git log
-        git log -1 | grep -oE 'from bcgov/[^ ]+'
+        git log -1
         MERGED_BRANCH=$(git log -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
         if [ -z "$MERGED_BRANCH" ]; then
           echo "Direct push into --env ${{env.TARGET_ENV}}"
