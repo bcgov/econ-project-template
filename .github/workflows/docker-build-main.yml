@@ -99,7 +99,9 @@ jobs:
         echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         # Check the merged branch and set versions accordingly
         if [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == "test" ]]; then
-          echo "Test version tagged as stable release"
+          echo "Latest test version tagged as main stable release"
+          TEST_VERSION=$(gh variable get UGM_BUILD_VERSION --env test --json | jq -r '.value')
+          gh variable set UGM_BUILD_VERSION --env main --body "$TEST_VERSION"
         elif [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == hotfix/* ]]; then
           echo "Incrementing patch version for hotfix version tagged as stable release"
           VERSION_PATCH=$((VERSION_PATCH + 1))
