@@ -97,11 +97,11 @@ jobs:
           UGM_DEPLOY_VERSION=$(gh variable get UGM_BUILD_VERSION --env test)
           gh variable set UGM_BUILD_VERSION --env main --body "$UGM_DEPLOY_VERSION"
         elif [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == hotfix/* ]]; then
-        # Extract the major.minor.patch version parts using grep
-        MAJOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+')
-        MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+')
-        VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
-        echo "Incrementing patch version for hotfix release"
+          # Extract the major.minor.patch version parts using grep
+          MAJOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+')
+          MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+')
+          VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
+          echo "Incrementing patch version for hotfix release"
           VERSION_PATCH=$((VERSION_PATCH + 1))
           UGM_DEPLOY_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         fi
