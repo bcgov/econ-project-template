@@ -91,27 +91,23 @@ jobs:
     - name: Generate Next Git Tag
       id: tag_selector
       run: |
+        echo "Main branch current release: ${{env.UGM_BUILD_VERSION}}"
+        # Check the merged branch and set versions accordingly
+        if [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == "test" ]]; then
+          UGM_DEPLOY_VERSION=$(gh variable get UGM_BUILD_VERSION --env test)
+          gh variable set UGM_BUILD_VERSION --env main --body "$UGM_DEPLOY_VERSION"
+        elif [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == hotfix/* ]]; then
         # Extract the major.minor.patch version parts using grep
         MAJOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+')
         MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+')
         VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
-        # Echo the current version
-        echo "${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
-        # Check the merged branch and set versions accordingly
-        if [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == "test" ]]; then
-          UGM_TEST_VERSION=$(gh variable get UGM_BUILD_VERSION --env test)
-          gh variable set UGM_BUILD_VERSION --env main --body "$UGM_TEST_VERSION"
-          echo "Latest test version tagged as stable release: $UGM_TEST_VERSION"
-          echo "TAGNAME=${{env.UGM_RELEASE_PREFIX}}$UGM_TEST_VERSION" >> $GITHUB_OUTPUT
-          echo "TAGVERSION=$UGM_TEST_VERSION" >> $GITHUB_OUTPUT
-        elif [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == hotfix/* ]]; then
-          echo "Incrementing patch version for hotfix release"
+        echo "Incrementing patch version for hotfix release"
           VERSION_PATCH=$((VERSION_PATCH + 1))
-          UGM_HOTFIX_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
-          echo "Hotfix branch tagged as stable release: $UGM_TEST_VERSION"
-          echo "TAGNAME=${{env.UGM_RELEASE_PREFIX}}$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH" >> $GITHUB_OUTPUT
-          echo "TAGVERSION=$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH" >> $GITHUB_OUTPUT
+          UGM_DEPLOY_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
         fi
+        echo "Main branch tagged as stable release: $UGM_DEPLOY_VERSION"
+        echo "TAGNAME=${{env.UGM_RELEASE_PREFIX}}$UGM_DEPLOY_VERSION" >> $GITHUB_OUTPUT
+        echo "TAGVERSION=$UGM_DEPLOY_VERSION" >> $GITHUB_OUTPUT
         echo "TAGMSG=${{env.UGM_RELEASE_MESSAGE}} ${{needs.Setup.outputs.DATE}}" >> $GITHUB_OUTPUT
     - name: Create Git Tag
       id: tag_create
@@ -128,8 +124,8 @@ jobs:
           git push origin "${{steps.tag_selector.outputs.TAGNAME}}"
         fi
     outputs:
-      TAGNAME: ${{steps.tag_selector.outputs.TAGNAME}}
       TAGMSG: ${{steps.tag_selector.outputs.TAGMSG}}
+      TAGNAME: ${{steps.tag_selector.outputs.TAGNAME}}
       TAGVERSION: ${{steps.tag_selector.outputs.TAGVERSION}}
   PushVariables:
     needs: [Setup,Branch,GenerateTag]
