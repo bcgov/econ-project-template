@@ -70,6 +70,7 @@ jobs:
       id: get_branch
       run: |
         MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
+        echo "Extracted MERGED_BRANCH: $MERGED_BRANCH"
         if [ -z "$MERGED_BRANCH" ]; then
           echo "Direct push no pull request from bcgov/branch"
           echo "MERGED_BRANCH=push" >> $GITHUB_OUTPUT
