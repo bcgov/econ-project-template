@@ -62,7 +62,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-          fetch-depth: '1'
+          fetch-depth: '2'
     - name: Get short commitId
       id: get_commit
       run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
@@ -72,7 +72,7 @@ jobs:
         # Get the latest merge commit message
         LATEST_MERGE_COMMIT=$(git log --merges --pretty=format:"%s")
         git log
-        git log --merges
+        git log | grep -oE 'from bcgov/[^ ]+'
 
         # Print the latest merge commit message for debugging
         echo "Latest merge commit message: $LATEST_MERGE_COMMIT"
