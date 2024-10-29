@@ -119,7 +119,7 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "github-actions@users.noreply.github.com"
         if [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == "test" ]]; then
-          echo "Test branch tagged as stable release -m Test to Main - ${{steps.tag_selector.outputs.TAGMSG}}""
+          echo "Test branch tagged as stable release -m Test to Main - ${{steps.tag_selector.outputs.TAGMSG}}"
           git tag -a "${{steps.tag_selector.outputs.TAGNAME}}" -m "Test to Main - ${{steps.tag_selector.outputs.TAGMSG}}"
           git push origin "${{steps.tag_selector.outputs.TAGNAME}}"
         elif [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == hotfix/* ]]; then
