@@ -69,9 +69,7 @@ jobs:
     - name: List merged branch
       id: get_branch
       run: |
-        # Get the latest merge commit message that matches "Merge pull request"
         MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'Merge pull request #[0-9]+ from bcgov/[^ ]+')
-        # Check if a merged branch was found
         if [ -z "$MERGED_BRANCH" ]; then
           echo "Direct push into dev branch"
           echo "MERGED_BRANCH=push" >> $GITHUB_OUTPUT
