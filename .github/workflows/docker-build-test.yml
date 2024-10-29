@@ -65,8 +65,7 @@ jobs:
           fetch-depth: '1'
     - name: Get short commitId
       id: get_commit
-      run:  |
-        echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
     - name: List merged branch
       id: get_branch
       run: |
