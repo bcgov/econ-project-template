@@ -69,6 +69,7 @@ jobs:
     - name: List merged branch
       id: get_branch
       run: |
+        git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+'
         MERGED_BRANCH=$(git log --merges --pretty=format:"%s" -1 | grep -oE 'from bcgov/[^ ]+' | sed 's/from bcgov\///')
         if [ -z "$MERGED_BRANCH" ]; then
           echo "Direct push no pull request from bcgov/branch"
