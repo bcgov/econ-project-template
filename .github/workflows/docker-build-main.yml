@@ -100,10 +100,11 @@ jobs:
         # Check the merged branch and set versions accordingly
         if [[ "${{ needs.Branch.outputs.MERGED_BRANCH }}" == "test" ]]; then
           echo "Latest test version tagged as stable release"
-          TEST_VERSION=$(gh variable get UGM_BUILD_VERSION --env test --json value)
-          echo $TEST_VERSION
-          gh variable set UGM_BUILD_VERSION --env main --body "$TEST_VERSION"
-
+         #  TEST_VERSION=$(gh variable get UGM_BUILD_VERSION --env test --json value | jq -r '.value')
+         #  echo $TEST_VERSION
+         #  gh variable set UGM_BUILD_VERSION --env main --body "$TEST_VERSION"
+          gh variable set UGM_BUILD_VERSION --env dev --body "$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
+          gh variable list --env main
           echo "UGM_BUILD_VERSION=$TEST_VERSION " >> $GITHUB_ENV
           # Prepare tags
           echo "TAGNAME=${{env.UGM_RELEASE_PREFIX}}$TEST_VERSION" >> $GITHUB_OUTPUT
