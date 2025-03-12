@@ -1,7 +1,0 @@
-{
-  "modules": {
-    "Unity.TenantManagement": {
-      "path": "Unity.TenantManagement.abpmdl"
-    }
-  }
-}
