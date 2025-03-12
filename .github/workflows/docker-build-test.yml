@@ -30,11 +30,11 @@ env:
   JFROG_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
   JFROG_REPO_PATH: ${{ vars.ARTIFACTORY_REPO }}
   JFROG_SERVICE:  ${{ vars.ARTIFACTORY_SERVICE }}
-  UGM_BUILD_VERSION: ${{vars.UGM_BUILD_VERSION}}
-  UGM_BUILD_REVISION: ${{vars.UGM_BUILD_REVISION}}
+  API_BUILD_VERSION: ${{vars.API_BUILD_VERSION}}
+  API_BUILD_REVISION: ${{vars.API_BUILD_REVISION}}
 
-  UGM_RELEASE_PREFIX: API_v
-  UGM_RELEASE_MESSAGE: "Test deployment"
+  API_RELEASE_PREFIX: API_v
+  API_RELEASE_MESSAGE: "Test deployment"
 
 jobs:
   Setup:
@@ -51,7 +51,8 @@ jobs:
         env | sort
     - name: Get current date
       id: date_selector
-      run: echo "DATE=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
+      run: |
+        echo "DATE=$(date +'%B %e, %Y')" >> $GITHUB_OUTPUT
     outputs:
       DATE: ${{steps.date_selector.outputs.DATE}}
   Branch:
@@ -94,17 +95,17 @@ jobs:
     - name: Generate Next Git Tag
       id: tag_selector
       run: |
-        echo "Current release: ${{env.UGM_BUILD_VERSION}}"
+        echo "Current release: ${{env.API_BUILD_VERSION}}"
         # Set version according to branching strategy, increment minor version, zero patch, pull to test/dev
         # Extract the major.minor.patch version parts using grep
-        MAJOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '^[0-9]+')
-        MINOR_VERSION=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+')
-        VERSION_PATCH=$(echo "${{env.UGM_BUILD_VERSION}}" | grep -oE '[0-9]+$')
+        MAJOR_VERSION=$(echo "${{env.API_BUILD_VERSION}}" | grep -oE '^[0-9]+')
+        MINOR_VERSION=$(echo "${{env.API_BUILD_VERSION}}" | grep -oE '\.[0-9]+\.' | grep -oE '[0-9]+')
+        VERSION_PATCH=$(echo "${{env.API_BUILD_VERSION}}" | grep -oE '[0-9]+$')
         MINOR_VERSION=$((MINOR_VERSION + 1))
         VERSION_PATCH=0
-        UGM_DEPLOY_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
-        echo "Test branch tagged as latest release: $UGM_DEPLOY_VERSION"
-        echo "TAGVERSION=$UGM_DEPLOY_VERSION" >> $GITHUB_OUTPUT
+        API_DEPLOY_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$VERSION_PATCH"
+        echo "Test branch tagged as latest release: $API_DEPLOY_VERSION"
+        echo "TAGVERSION=$API_DEPLOY_VERSION" >> $GITHUB_OUTPUT
     outputs:
       TAGVERSION: ${{steps.tag_selector.outputs.TAGVERSION}}
   PushVariables:
@@ -119,12 +120,12 @@ jobs:
     - name: Set repository version variables
       id: set_version
       run: |
-        gh variable set UGM_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{needs.Branch.outputs.SHA_SHORT}}"
-        echo "UGM_BUILD_REVISION=${{needs.Branch.outputs.SHA_SHORT}}" >> $GITHUB_ENV
-        gh variable set UGM_BUILD_VERSION --env ${{env.TARGET_ENV}} --body "${{needs.GenerateTag.outputs.TAGVERSION}}"
-        echo "UGM_BUILD_VERSION=${{needs.GenerateTag.outputs.TAGVERSION}}" >> $GITHUB_ENV
-        # Sync dev with test UGM_BUILD_VERSION
-        gh variable set UGM_BUILD_VERSION --env dev --body "${{needs.GenerateTag.outputs.TAGVERSION}}"
+        gh variable set API_BUILD_REVISION --env ${{env.TARGET_ENV}} --body "${{needs.Branch.outputs.SHA_SHORT}}"
+        echo "API_BUILD_REVISION=${{needs.Branch.outputs.SHA_SHORT}}" >> $GITHUB_ENV
+        gh variable set API_BUILD_VERSION --env ${{env.TARGET_ENV}} --body "${{needs.GenerateTag.outputs.TAGVERSION}}"
+        echo "API_BUILD_VERSION=${{needs.GenerateTag.outputs.TAGVERSION}}" >> $GITHUB_ENV
+        # Sync dev with test API_BUILD_VERSION
+        gh variable set API_BUILD_VERSION --env dev --body "${{needs.GenerateTag.outputs.TAGVERSION}}"
     - name: Get repository version variables
       id: get_version
       run: |
@@ -134,7 +135,7 @@ jobs:
         echo "..."
         gh variable list --env main
         echo "..."
-        echo "buildArgs --env ${{env.TARGET_ENV}} UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}, Merged Branch: ${{needs.Branch.outputs.MERGED_BRANCH}}"
+        echo "buildArgs --env ${{env.TARGET_ENV}} UNITY_BUILD_VERSION: ${{env.API_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.API_BUILD_REVISION}}, Merged Branch: ${{needs.Branch.outputs.MERGED_BRANCH}}"
   Build:
     needs: [Setup,Branch,GenerateTag,PushVariables]
     runs-on: ubuntu-latest
@@ -147,12 +148,6 @@ jobs:
     - name: Build aspnetapp docker images
       run: docker compose build
       working-directory: ./applications/aspnetapp
-#    - name: Build Docker images
-#      run: |
-#        rm -f ./docker-compose.override.yml
-#        echo "buildArgs UNITY_BUILD_VERSION: ${{env.UGM_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.UGM_BUILD_REVISION}}"
-#        docker compose build --build-arg UNITY_BUILD_VERSION=${{env.UGM_BUILD_VERSION}} --build-arg UNITY_BUILD_REVISION=${{env.UGM_BUILD_REVISION}}
-#      working-directory: ./applications/Unity.GrantManager
     - name: Connect to JFrog Artifactory non-interactive login using --password-stdin
       run: |
         echo "$JFROG_PASSWORD" | docker login -u "$JFROG_USERNAME" --password-stdin $JFROG_SERVICE
@@ -162,10 +157,6 @@ jobs:
         docker push $JFROG_SERVICE/$JFROG_REPO_PATH/dotnetapp
         docker tag aspnetapp $JFROG_SERVICE/$JFROG_REPO_PATH/aspnetapp
         docker push $JFROG_SERVICE/$JFROG_REPO_PATH/aspnetapp
-#        docker tag unity-grantmanager-dbmigrator $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-dbmigrator
-#        docker push $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-dbmigrator
-#        docker tag unity-grantmanager-web $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-web
-#        docker push $JFROG_SERVICE/$JFROG_REPO_PATH/unity-grantmanager-web
     - name: Disconnect docker from JFrog Artifactory
       run: |
         docker logout
@@ -187,10 +178,6 @@ jobs:
         docker push $OC_REGISTRY/$OC_TARGET_PROJECT/dotnetapp
         docker tag aspnetapp $OC_REGISTRY/$OC_TARGET_PROJECT/aspnetapp
         docker push $OC_REGISTRY/$OC_TARGET_PROJECT/aspnetapp
-#        docker tag unity-grantmanager-dbmigrator $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-dbmigrator
-#        docker push $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-dbmigrator
-#        docker tag unity-grantmanager-web $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-web
-#        docker push $OC_REGISTRY/$OC_TARGET_PROJECT/unity-grantmanager-web
     - name: Disconnect docker from OpenShift container registry
       run: |
         docker logout
