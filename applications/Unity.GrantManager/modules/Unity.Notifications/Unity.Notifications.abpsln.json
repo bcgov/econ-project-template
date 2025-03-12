@@ -1,7 +1,0 @@
-{
-  "modules": {
-    "Unity.Notifications": {
-      "path": "Unity.Notifications.abpmdl.json"
-    }
-  }
-}
