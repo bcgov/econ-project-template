@@ -3,6 +3,8 @@ name: Change Base Branch to Dev
 on:
   pull_request:
     types: [opened]
+    branches:
+      - 'feature/*'
 
 jobs:
   change-base-branch:
