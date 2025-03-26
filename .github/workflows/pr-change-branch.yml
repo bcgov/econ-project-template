@@ -1,10 +1,11 @@
-name: Change Base Branch to Dev
+name: Change feature or bugfix PR base into dev
 
 on:
   pull_request:
     types: [opened]
     branches:
       - 'feature/*'
+      - 'bugfix/*'
 
 jobs:
   change-base-branch:
