@@ -12,6 +12,8 @@ jobs:
       - name: Check branch
         run: |
           if [[ ${GITHUB_HEAD_REF} != 'test' ]] && ! [[ ${GITHUB_HEAD_REF} =~ ^hotfix/ ]]; then
+            echo ""
             echo "Error: Pull request must come from 'test' or 'hotfix/' branch"
+            echo "Fix: Edit the PR into base: or rename source branch and try again."
             exit 1
           fi
