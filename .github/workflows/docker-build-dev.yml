@@ -1,7 +1,8 @@
 name: Dev - Build & Push docker images
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches: [ "dev" ]
     paths-ignore:
       - '.github/**'
