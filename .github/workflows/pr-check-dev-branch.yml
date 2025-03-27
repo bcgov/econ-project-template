@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  check-branch:
+  check-dev-branch:
     runs-on: ubuntu-latest
     steps:
       - name: Check branch
