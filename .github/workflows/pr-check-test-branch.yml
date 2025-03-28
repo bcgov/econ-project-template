@@ -14,6 +14,6 @@ jobs:
           if [[ ${GITHUB_HEAD_REF} != 'dev' ]] && ! [[ ${GITHUB_HEAD_REF} =~ ^hotfix/ ]] && ! [[ ${GITHUB_HEAD_REF} =~ ^bugfix/ ]]; then
             echo ""
             echo "Error: Pull Request into test must come from a merged 'dev', 'hotfix/*', or 'bugfix/*' branch"
-            echo "Quick Fix: Edit the PR into base: dev branch or rename source branch and try again."
+            echo "Quick Fix: Edit the PR into base: branch or rename source branch and try again."
             exit 1
           fi
