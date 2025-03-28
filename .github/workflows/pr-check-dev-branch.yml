@@ -1,4 +1,4 @@
-name: Branch Protection
+name: Dev - Branch Protection
 
 on:
   pull_request:
