@@ -13,7 +13,7 @@ jobs:
         run: |
           if [[ ${GITHUB_HEAD_REF} != 'test' ]] && ! [[ ${GITHUB_HEAD_REF} =~ ^hotfix/ ]]; then
             echo ""
-            echo "Error: Pull Request into main must come from a merged 'test' or 'hotfix/*' branch"
-            echo "Quick Fix: Cancel this PR rename the source branch and try again or target into dev branch."
+            echo "Error: Pull Request into main must come from a merged 'test' or 'hotfix/*' source branch"
+            echo "Fix: Rename the source branch to hotfix/* or close this PR and target a different base using a new PR."
             exit 1
           fi
