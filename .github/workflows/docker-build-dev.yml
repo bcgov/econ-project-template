@@ -110,7 +110,6 @@ jobs:
     permissions:
       contents: read
       actions: write
-      environments: write
     runs-on: ubuntu-latest
     environment: dev
     steps:
