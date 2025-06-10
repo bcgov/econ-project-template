@@ -1,4 +1,5 @@
 name: Dev - Branch Protection
+permissions: {}
 
 on:
   pull_request:
@@ -7,6 +8,8 @@ on:
 
 jobs:
   check-dev-branch:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Check branch
