@@ -1,5 +1,6 @@
 name: Main - Build & Push docker images
-permissions: {}
+permissions:
+  contents: read
 
 on:
   push:
@@ -39,8 +40,6 @@ env:
 
 jobs:
   Setup:
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     environment: main
     steps:
@@ -60,8 +59,6 @@ jobs:
       DATE: ${{steps.date_selector.outputs.DATE}}
   Branch:
     needs: [Setup]
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     environment: main
     steps:
@@ -90,8 +87,6 @@ jobs:
       MERGED_BRANCH: ${{steps.get_branch.outputs.MERGED_BRANCH}}
   GenerateTag:
     needs: [Setup,Branch]
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     environment: main
     steps:
@@ -144,7 +139,6 @@ jobs:
   PushVariables:
     needs: [Setup,Branch,GenerateTag]
     permissions:
-      contents: read
       actions: write
     runs-on: ubuntu-latest
     environment: main
@@ -172,8 +166,6 @@ jobs:
         echo "buildArgs --env ${{env.TARGET_ENV}} UNITY_BUILD_VERSION: ${{env.API_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.API_BUILD_REVISION}}, Merged Branch: ${{needs.Branch.outputs.MERGED_BRANCH}}"
   Build:
     needs: [Setup,Branch,GenerateTag,PushVariables]
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
     environment: main
     steps:
