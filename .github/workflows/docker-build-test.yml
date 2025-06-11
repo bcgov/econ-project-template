@@ -1,5 +1,6 @@
 name: Test - Build & Push docker images
-permissions: {}
+permissions:
+  contents: read
 
 on:
   push:
@@ -118,7 +119,6 @@ jobs:
   PushVariables:
     needs: [Setup,Branch,GenerateTag]
     permissions:
-      contents: read
       actions: write
     runs-on: ubuntu-latest
     environment: test
