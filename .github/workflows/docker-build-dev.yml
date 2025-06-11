@@ -1,4 +1,5 @@
 name: Dev - Build & Push docker images
+permissions: {}
 
 on:
   push:
@@ -38,6 +39,8 @@ env:
 
 jobs:
   Setup:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     environment: dev
     steps:
@@ -57,6 +60,8 @@ jobs:
       DATE: ${{steps.date_selector.outputs.DATE}}
   Branch:
     needs: [Setup]
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     environment: dev
     steps:
@@ -83,8 +88,28 @@ jobs:
     outputs:
       SHA_SHORT: ${{steps.get_commit.outputs.SHA_SHORT}}
       MERGED_BRANCH: ${{steps.get_branch.outputs.MERGED_BRANCH}}
-  PushVariables:
+  GenerateTag:
     needs: [Setup,Branch]
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+          fetch-depth: '1'
+    - name: Generate and set tag
+      id: tag
+      run: |
+        TAG="dev-${{ github.run_id }}-${{ needs.Branch.outputs.SHA_SHORT }}"
+        echo "TAG=$TAG" >> $GITHUB_ENV
+        gh release create "$TAG" --title "$TAG" --notes "Automated release for $TAG" --target $GITHUB_REF
+  PushVariables:
+    needs: [Setup,Branch,GenerateTag]
+    permissions:
+      contents: read
+      actions: write
     runs-on: ubuntu-latest
     environment: dev
     steps:
@@ -104,7 +129,9 @@ jobs:
         echo "..."
         echo "buildArgs --env ${{env.TARGET_ENV}} UNITY_BUILD_VERSION: ${{env.API_BUILD_VERSION}}, UNITY_BUILD_REVISION: ${{env.API_BUILD_REVISION}}, Merged Branch: ${{needs.Branch.outputs.MERGED_BRANCH}}"
   Build:
-    needs: [Setup,Branch,PushVariables]
+    needs: [Setup,Branch,GenerateTag,PushVariables]
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     environment: dev
     steps:
